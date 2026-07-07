@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # AI in Formal Healthcare Education — Evidence Dashboard
 
 Scoping review dashboard for an MSc dissertation on AI use in formal healthcare
@@ -75,7 +74,3 @@ research supervisor, not this repository.
 Code in this repository may be reused under [MIT License](LICENSE) unless
 stated otherwise. This does not extend to any research findings, which
 remain the author's and their institution's.
-=======
-# RCSI-AI-Healthcare-Education-Dashboard
-Evidence dashboard for a research project.
->>>>>>> c9404fad71e2b98fb28c898b24452b9857cbcd6b
