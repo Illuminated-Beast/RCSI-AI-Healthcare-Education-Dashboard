@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>RCSI AI in Healthcare Education — Dashboard</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  :root{ --red:#CC0000; --ink:#222; --muted:#666; --line:#e6e6e6; }
+  *{box-sizing:border-box;}
+  body{font-family:'Segoe UI',system-ui,sans-serif;color:var(--ink);margin:0;background:#fafafa;}
+  header{background:var(--red);color:#fff;padding:18px 24px;}
+  header h1{margin:0;font-size:20px;}
+  header p{margin:4px 0 0;font-size:13px;opacity:.9;}
+  nav.tabs{display:flex;gap:6px;padding:10px 24px;background:#fff;border-bottom:1px solid var(--line);flex-wrap:wrap;}
+  nav.tabs button{border:1px solid var(--line);background:#fff;padding:8px 14px;border-radius:6px;cursor:pointer;font-size:13px;}
+  nav.tabs button.active{background:var(--red);color:#fff;border-color:var(--red);}
+  .panel{display:none;padding:20px 24px;max-width:1200px;margin:0 auto;}
+  .panel.active{display:block;}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:20px;}
+  .card{background:#fff;border:1px solid var(--line);border-radius:8px;padding:14px;}
+  .card .num{font-size:24px;font-weight:700;color:var(--red);}
+  .card .lbl{font-size:12px;color:var(--muted);}
+  .chart-box{background:#fff;border:1px solid var(--line);border-radius:8px;padding:16px;margin-bottom:20px;height:340px;}
+  table{width:100%;border-collapse:collapse;background:#fff;font-size:13px;}
+  th,td{border:1px solid var(--line);padding:8px 10px;text-align:left;}
+  th{background:#f5f5f5;}
+  .tier{padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600;color:#fff;}
+  .tier-HIGH{background:#059669;} .tier-MEDIUM{background:#d97706;} .tier-LOW{background:#dc2626;}
+  .warn{background:#FFF3CD;border:1px solid #f1c87a;color:#7B3F00;padding:10px 14px;border-radius:6px;margin-bottom:16px;font-size:13px;}
+  .note{font-size:12px;color:var(--muted);margin-top:6px;}
+</style>
+</head>
+<body>
+<header>
+  <h1>AI in Formal Healthcare Education — Scoping Review Dashboard</h1>
+  <p id="meta-line">loading…</p>
+</header>
+<nav class="tabs">
+  <button class="active" onclick="showTab('overview',event)">Overview</button>
+  <button onclick="showTab('topics',event)">Topics</button>
+  <button onclick="showTab('evidence',event)">Evidence Scores</button>
+  <button onclick="showTab('gaps',event)">Gap Analysis</button>
+</nav>
+
+<div id="tab-overview" class="panel active"></div>
+<div id="tab-topics" class="panel"></div>
+<div id="tab-evidence" class="panel"></div>
+<div id="tab-gaps" class="panel"></div>
+
+<script>
+const DATA = {"meta": {"generated_at": "2026-07-05T12:55:03.635211", "source_file": "Dashboard_Input_Template.xlsx", "input_topic_distribution_locked": true, "locked_structure_target": "116/111/97/96/56/31", "evidence_scores_are_locked_constants": true}, "corpus_overview": {"total_papers": 507, "pre_chatgpt": 58, "post_chatgpt": 449, "pct_post_chatgpt": 88.6, "chatgpt_cutoff": "November 2022", "by_category": {"General AI in Healthcare Education": 328, "AI and Exam Performance": 115, "Advocation for AI in Healthcare Education": 64}, "by_year": {"1995": 1, "2003": 1, "2004": 1, "2006": 1, "2014": 1, "2017": 1, "2018": 3, "2019": 6, "2020": 8, "2021": 15, "2022": 20, "2023": 90, "2024": 190, "2025": 169}, "by_source_db": {"PubMed": 438, "Semantic Scholar": 42, "Scopus": 27}}, "topics": [{"id": 1, "label": "AI Benchmarking & Exam Performance", "count_locked": 116, "count_input_file": 116, "pre_chatgpt": 4, "post_chatgpt": 112, "by_category": {"General AI in Healthcare Education": 98, "AI and Exam Performance": 18}, "keywords": ["examination", "mcqs", "exam", "llms", "question", "licensing", "multiplechoice", "chat", "bard", "answer"], "evidence": {"d1_pct": 94.0, "d1_rating": "HIGH", "d2_pct": 7.8, "d2_rating": "LOW", "d3_rating": "HIGH", "composite": 2.4, "tier": "MEDIUM", "note": "D1/D2 inversion. Highest D1 in corpus (94%). Lowest D2 aside from Topic 5 (7.8%). Replicated across 3 BERTopic re-fits. Headline dissertation finding.", "source": "Stage 6 Cell 6 — verified 20 June 2026 — LOCKED", "d1_cross_check": {"computed_from_input_file": 94.0, "stage6_locked_value": 94.0, "mismatch_flag": false}}}, {"id": 0, "label": "Generative AI Adoption & Student Perceptions", "count_locked": 111, "count_input_file": 111, "pre_chatgpt": 1, "post_chatgpt": 110, "by_category": {"General AI in Healthcare Education": 70, "AI and Exam Performance": 22, "Advocation for AI in Healthcare Education": 19}, "keywords": ["llms", "chatbots", "chat", "chatgpts", "questionnaire", "tutor", "using chatgpt", "respondents", "chatbot", "simulations"], "evidence": {"d1_pct": 64.9, "d1_rating": "MEDIUM", "d2_pct": 13.5, "d2_rating": "MEDIUM", "d3_rating": "MEDIUM", "composite": 2.0, "tier": "MEDIUM", "note": "All three dimensions MEDIUM. Consistent middle-tier evidence.", "source": "Stage 6 Cell 6 — verified 20 June 2026 — LOCKED", "d1_cross_check": {"computed_from_input_file": 64.9, "stage6_locked_value": 64.9, "mismatch_flag": false}}}, {"id": 2, "label": "AI in Medical Imaging & Surgical Education", "count_locked": 97, "count_input_file": 97, "pre_chatgpt": 23, "post_chatgpt": 74, "by_category": {"General AI in Healthcare Education": 65, "AI and Exam Performance": 22, "Advocation for AI in Healthcare Education": 10}, "keywords": ["images", "anatomy", "physicians", "systematic", "surgical", "image", "anatomical", "synthetic", "scoping", "publications"], "evidence": {"d1_pct": 50.5, "d1_rating": "LOW", "d2_pct": 29.9, "d2_rating": "HIGH", "d3_rating": "MEDIUM", "composite": 1.8, "tier": "MEDIUM", "note": "REVERSE D1/D2 inversion. Highest D2 in corpus (29.9%) but lowest D1 alongside Simulation (50.5%). Good methodology, poor outcome reporting.", "source": "Stage 6 Cell 6 — verified 20 June 2026 — LOCKED", "d1_cross_check": {"computed_from_input_file": 50.5, "stage6_locked_value": 50.5, "mismatch_flag": false}}}, {"id": 4, "label": "Simulation, Virtual Reality & Clinical Training", "count_locked": 96, "count_input_file": 96, "pre_chatgpt": 13, "post_chatgpt": 83, "by_category": {"General AI in Healthcare Education": 76, "AI and Exam Performance": 15, "Advocation for AI in Healthcare Education": 5}, "keywords": ["simulation", "generative artificial", "platform", "llms", "reality", "dental", "simulated", "statements", "virtual reality", "virtual patient"], "evidence": {"d1_pct": 50.0, "d1_rating": "LOW", "d2_pct": 15.6, "d2_rating": "MEDIUM", "d3_rating": "MEDIUM", "composite": 1.5, "tier": "LOW", "note": "Joint-lowest composite (1.5 LOW) with Pharmacy. Half the papers report no outcome.", "source": "Stage 6 Cell 6 — verified 20 June 2026 — LOCKED", "d1_cross_check": {"computed_from_input_file": 50.0, "stage6_locked_value": 50.0, "mismatch_flag": false}}}, {"id": 5, "label": "Perceptions, Readiness & Knowledge-Attitude Studies", "count_locked": 56, "count_input_file": 56, "pre_chatgpt": 15, "post_chatgpt": 41, "by_category": {"AI and Exam Performance": 25, "Advocation for AI in Healthcare Education": 25, "General AI in Healthcare Education": 6}, "keywords": ["readiness", "questionnaire", "undergraduate medical", "radiology", "knowledge attitudes", "intelligence medicine", "saudi", "doctors", "medical curricula", "respondents"], "evidence": {"d1_pct": 82.1, "d1_rating": "HIGH", "d2_pct": 3.6, "d2_rating": "LOW", "d3_rating": "LOW", "composite": 2.0, "tier": "MEDIUM", "note": "Third D1/D2 inversion. D2=3.6% is the lowest in the entire corpus.", "source": "Stage 6 Cell 6 — verified 20 June 2026 — LOCKED", "d1_cross_check": {"computed_from_input_file": 82.1, "stage6_locked_value": 82.1, "mismatch_flag": false}}}, {"id": 3, "label": "Pharmacy Education & Academic Integrity", "count_locked": 31, "count_input_file": 31, "pre_chatgpt": 2, "post_chatgpt": 29, "by_category": {"AI and Exam Performance": 13, "General AI in Healthcare Education": 13, "Advocation for AI in Healthcare Education": 5}, "keywords": ["pharmacy", "pharmacy education", "pharmacy students", "osce", "documents", "articles", "osces", "integrity", "academic integrity", "questionnaire"], "evidence": {"d1_pct": 58.1, "d1_rating": "LOW", "d2_pct": 16.1, "d2_rating": "MEDIUM", "d3_rating": "MEDIUM", "composite": 1.5, "tier": "LOW", "note": "Joint-lowest composite (1.5 LOW) with Simulation. Smallest topic (n=31).", "source": "Stage 6 Cell 6 — verified 20 June 2026 — LOCKED", "d1_cross_check": {"computed_from_input_file": 58.1, "stage6_locked_value": 58.1, "mismatch_flag": false}}}], "evidence_summary": {"tier_distribution": {"HIGH": 0, "MEDIUM": 4, "LOW": 2}, "all_verified": true, "verification_date": "20 June 2026", "verification_source": "Stage 6 notebook Cell 6 (LOCKED, not recomputed by this script)"}, "gap_analysis": {"study_design_distribution": {"Survey / Questionnaire": 134, "Observational Study": 89, "Case Study / Case Series": 72, "Comparative Study": 61, "Mixed Methods": 48, "Simulation-Based Study": 38, "Review / Meta-Analysis": 29, "Expert Opinion / Commentary": 17, "RCT / Randomized Trial": 13, "Other": 6}, "headline_gaps": [{"rank": 1, "gap": "Topic 1 (Benchmarking) D1/D2 inversion", "affected_topics": [1]}, {"rank": 2, "gap": "Topic 5 (Readiness) lowest D2 in corpus", "affected_topics": [5]}, {"rank": 3, "gap": "Simulation: largest volume-vs-evidence gap", "affected_topics": [4]}, {"rank": 4, "gap": "Survey dominance limits causal inference", "affected_topics": [0, 5]}, {"rank": 5, "gap": "Imaging: good design, poor outcome reporting", "affected_topics": [2]}]}};
+const TOPIC_COLORS = ['#2563eb','#059669','#d97706','#7c3aed','#0891b2','#dc2626'];
+
+function showTab(name, e){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('nav.tabs button').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  if(e) e.currentTarget.classList.add('active');
+}
+
+function renderMeta(){
+  const m = DATA.meta;
+  const lockTxt = m.input_topic_distribution_locked ? 'locked structure confirmed' : 'NOT LOCKED — see warning';
+  document.getElementById('meta-line').textContent =
+    `${m.total_papers || DATA.corpus_overview.total_papers} papers | generated ${m.generated_at} | input: ${m.source_file} (${lockTxt})`;
+}
+
+function renderOverview(){
+  const co = DATA.corpus_overview;
+  const el = document.getElementById('tab-overview');
+  let html = '';
+  if(!DATA.meta.input_topic_distribution_locked){
+    html += `<div class="warn"><strong>Input file is not the locked structure.</strong> Corpus counts on this page come from the input file as given. Evidence scores in the Evidence tab are unaffected (locked constants). Target distribution: ${DATA.meta.locked_structure_target}.</div>`;
+  }
+  html += `<div class="cards">
+    <div class="card"><div class="num">${co.total_papers}</div><div class="lbl">Total papers</div></div>
+    <div class="card"><div class="num">${co.pct_post_chatgpt}%</div><div class="lbl">Post-ChatGPT (post ${co.chatgpt_cutoff})</div></div>
+    <div class="card"><div class="num">${co.pre_chatgpt}</div><div class="lbl">Pre-ChatGPT papers</div></div>
+    <div class="card"><div class="num">${co.post_chatgpt}</div><div class="lbl">Post-ChatGPT papers</div></div>
+  </div>
+  <div class="chart-box"><canvas id="catChart"></canvas></div>
+  <div class="chart-box"><canvas id="yearChart"></canvas></div>`;
+  el.innerHTML = html;
+
+  new Chart(document.getElementById('catChart'), {
+    type:'doughnut',
+    data:{ labels:Object.keys(co.by_category), datasets:[{data:Object.values(co.by_category), backgroundColor:['#CC0000','#2563eb','#059669'], borderColor:'#fff', borderWidth:2}] },
+    options:{ plugins:{ title:{display:true, text:'Corpus by classification'} } }
+  });
+  const years = Object.keys(co.by_year).sort();
+  new Chart(document.getElementById('yearChart'), {
+    type:'bar',
+    data:{ labels:years, datasets:[{ label:'Papers per year', data:years.map(y=>co.by_year[y]), backgroundColor:'#CC0000' }] },
+    options:{ plugins:{ title:{display:true, text:'Papers by year'} }, scales:{ y:{ beginAtZero:true } } }
+  });
+}
+
+function renderTopics(){
+  const el = document.getElementById('tab-topics');
+  let html = `<div class="chart-box"><canvas id="topicChart"></canvas></div>
+  <table><tr><th>Topic</th><th>Locked n</th><th>n in input file</th><th>Pre-ChatGPT</th><th>Post-ChatGPT</th></tr>`;
+  DATA.topics.forEach(t=>{
+    const mismatch = t.count_locked !== t.count_input_file ? ' style="color:#dc2626;font-weight:600;"' : '';
+    html += `<tr><td>${t.label}</td><td>${t.count_locked}</td><td${mismatch}>${t.count_input_file}</td><td>${t.pre_chatgpt ?? '—'}</td><td>${t.post_chatgpt ?? '—'}</td></tr>`;
+  });
+  html += '</table>';
+  el.innerHTML = html;
+
+  new Chart(document.getElementById('topicChart'), {
+    type:'bar',
+    data:{ labels:DATA.topics.map(t=>t.label), datasets:[{ label:'Locked topic size', data:DATA.topics.map(t=>t.count_locked), backgroundColor:TOPIC_COLORS }] },
+    options:{ indexAxis:'y', plugins:{ title:{display:true, text:'Locked topic sizes (BERTopic, never re-derived)'} } }
+  });
+}
+
+function renderEvidence(){
+  const el = document.getElementById('tab-evidence');
+  let html = `<p class="note">All values below are locked constants verified from Stage 6 Cell 6 (20 June 2026). They are not recomputed by this pipeline.</p>
+  <table><tr><th>Topic</th><th>D1 (outcome reporting)</th><th>D2 (rigorous design)</th><th>D3</th><th>Composite</th><th>Tier</th></tr>`;
+  DATA.topics.forEach(t=>{
+    const ev = t.evidence;
+    html += `<tr><td>${t.label}</td><td>${ev.d1_pct}% (${ev.d1_rating})</td><td>${ev.d2_pct}% (${ev.d2_rating})</td><td>${ev.d3_rating}</td><td>${ev.composite}</td><td><span class="tier tier-${ev.tier}">${ev.tier}</span></td></tr>`;
+  });
+  html += '</table><h3 style="margin-top:24px;">Notes</h3>';
+  DATA.topics.forEach(t=>{
+    html += `<p><strong>${t.label}:</strong> ${t.evidence.note}</p>`;
+  });
+  el.innerHTML = html;
+}
+
+function renderGaps(){
+  const el = document.getElementById('tab-gaps');
+  const ga = DATA.gap_analysis;
+  let html = `<div class="chart-box"><canvas id="designChart"></canvas></div>
+  <h3>Headline gaps</h3><table><tr><th>#</th><th>Gap</th><th>Affected topics</th></tr>`;
+  ga.headline_gaps.forEach(g=>{
+    html += `<tr><td>${g.rank}</td><td>${g.gap}</td><td>${g.affected_topics.join(', ')}</td></tr>`;
+  });
+  html += '</table>';
+  el.innerHTML = html;
+
+  const labels = Object.keys(ga.study_design_distribution);
+  new Chart(document.getElementById('designChart'), {
+    type:'bar',
+    data:{ labels, datasets:[{ label:'Papers', data:Object.values(ga.study_design_distribution), backgroundColor:'#CC0000' }] },
+    options:{ indexAxis:'y', plugins:{ title:{display:true, text:'Study design distribution'} } }
+  });
+}
+
+renderMeta();
+renderOverview();
+renderTopics();
+renderEvidence();
+renderGaps();
+</script>
+</body>
+</html>

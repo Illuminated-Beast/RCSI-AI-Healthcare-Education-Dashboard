@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>RCSI AI in Healthcare Education — Dashboard</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  :root{ --red:#CC0000; --ink:#222; --muted:#666; --line:#e6e6e6; }
+  *{box-sizing:border-box;}
+  body{font-family:'Segoe UI',system-ui,sans-serif;color:var(--ink);margin:0;background:#fafafa;}
+  header{background:var(--red);color:#fff;padding:18px 24px;}
+  header h1{margin:0;font-size:20px;}
+  header p{margin:4px 0 0;font-size:13px;opacity:.9;}
+  nav.tabs{display:flex;gap:6px;padding:10px 24px;background:#fff;border-bottom:1px solid var(--line);flex-wrap:wrap;}
+  nav.tabs button{border:1px solid var(--line);background:#fff;padding:8px 14px;border-radius:6px;cursor:pointer;font-size:13px;}
+  nav.tabs button.active{background:var(--red);color:#fff;border-color:var(--red);}
+  .panel{display:none;padding:20px 24px;max-width:1200px;margin:0 auto;}
+  .panel.active{display:block;}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:20px;}
+  .card{background:#fff;border:1px solid var(--line);border-radius:8px;padding:14px;}
+  .card .num{font-size:24px;font-weight:700;color:var(--red);}
+  .card .lbl{font-size:12px;color:var(--muted);}
+  .chart-box{background:#fff;border:1px solid var(--line);border-radius:8px;padding:16px;margin-bottom:20px;height:340px;}
+  table{width:100%;border-collapse:collapse;background:#fff;font-size:13px;}
+  th,td{border:1px solid var(--line);padding:8px 10px;text-align:left;}
+  th{background:#f5f5f5;}
+  .tier{padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600;color:#fff;}
+  .tier-HIGH{background:#059669;} .tier-MEDIUM{background:#d97706;} .tier-LOW{background:#dc2626;}
+  .warn{background:#FFF3CD;border:1px solid #f1c87a;color:#7B3F00;padding:10px 14px;border-radius:6px;margin-bottom:16px;font-size:13px;}
+  .note{font-size:12px;color:var(--muted);margin-top:6px;}
+</style>
+</head>
+<body>
+<header>
+  <h1>AI in Formal Healthcare Education — Scoping Review Dashboard</h1>
+  <p id="meta-line">loading…</p>
+</header>
+<nav class="tabs">
+  <button class="active" onclick="showTab('overview',event)">Overview</button>
+  <button onclick="showTab('topics',event)">Topics</button>
+  <button onclick="showTab('evidence',event)">Evidence Scores</button>
+  <button onclick="showTab('gaps',event)">Gap Analysis</button>
+</nav>
+
+<div id="tab-overview" class="panel active"></div>
+<div id="tab-topics" class="panel"></div>
+<div id="tab-evidence" class="panel"></div>
+<div id="tab-gaps" class="panel"></div>
+
+<script>
+const DATA = __DASHBOARD_DATA_JSON__;
+const TOPIC_COLORS = ['#2563eb','#059669','#d97706','#7c3aed','#0891b2','#dc2626'];
+
+function showTab(name, e){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('nav.tabs button').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  if(e) e.currentTarget.classList.add('active');
+}
+
+function renderMeta(){
+  const m = DATA.meta;
+  const lockTxt = m.input_topic_distribution_locked ? 'locked structure confirmed' : 'NOT LOCKED — see warning';
+  document.getElementById('meta-line').textContent =
+    `${m.total_papers || DATA.corpus_overview.total_papers} papers | generated ${m.generated_at} | input: ${m.source_file} (${lockTxt})`;
+}
+
+function renderOverview(){
+  const co = DATA.corpus_overview;
+  const el = document.getElementById('tab-overview');
+  let html = '';
+  if(!DATA.meta.input_topic_distribution_locked){
+    html += `<div class="warn"><strong>Input file is not the locked structure.</strong> Corpus counts on this page come from the input file as given. Evidence scores in the Evidence tab are unaffected (locked constants). Target distribution: ${DATA.meta.locked_structure_target}.</div>`;
+  }
+  html += `<div class="cards">
+    <div class="card"><div class="num">${co.total_papers}</div><div class="lbl">Total papers</div></div>
+    <div class="card"><div class="num">${co.pct_post_chatgpt}%</div><div class="lbl">Post-ChatGPT (post ${co.chatgpt_cutoff})</div></div>
+    <div class="card"><div class="num">${co.pre_chatgpt}</div><div class="lbl">Pre-ChatGPT papers</div></div>
+    <div class="card"><div class="num">${co.post_chatgpt}</div><div class="lbl">Post-ChatGPT papers</div></div>
+  </div>
+  <div class="chart-box"><canvas id="catChart"></canvas></div>
+  <div class="chart-box"><canvas id="yearChart"></canvas></div>`;
+  el.innerHTML = html;
+
+  new Chart(document.getElementById('catChart'), {
+    type:'doughnut',
+    data:{ labels:Object.keys(co.by_category), datasets:[{data:Object.values(co.by_category), backgroundColor:['#CC0000','#2563eb','#059669'], borderColor:'#fff', borderWidth:2}] },
+    options:{ plugins:{ title:{display:true, text:'Corpus by classification'} } }
+  });
+  const years = Object.keys(co.by_year).sort();
+  new Chart(document.getElementById('yearChart'), {
+    type:'bar',
+    data:{ labels:years, datasets:[{ label:'Papers per year', data:years.map(y=>co.by_year[y]), backgroundColor:'#CC0000' }] },
+    options:{ plugins:{ title:{display:true, text:'Papers by year'} }, scales:{ y:{ beginAtZero:true } } }
+  });
+}
+
+function renderTopics(){
+  const el = document.getElementById('tab-topics');
+  let html = `<div class="chart-box"><canvas id="topicChart"></canvas></div>
+  <table><tr><th>Topic</th><th>Locked n</th><th>n in input file</th><th>Pre-ChatGPT</th><th>Post-ChatGPT</th></tr>`;
+  DATA.topics.forEach(t=>{
+    const mismatch = t.count_locked !== t.count_input_file ? ' style="color:#dc2626;font-weight:600;"' : '';
+    html += `<tr><td>${t.label}</td><td>${t.count_locked}</td><td${mismatch}>${t.count_input_file}</td><td>${t.pre_chatgpt ?? '—'}</td><td>${t.post_chatgpt ?? '—'}</td></tr>`;
+  });
+  html += '</table>';
+  el.innerHTML = html;
+
+  new Chart(document.getElementById('topicChart'), {
+    type:'bar',
+    data:{ labels:DATA.topics.map(t=>t.label), datasets:[{ label:'Locked topic size', data:DATA.topics.map(t=>t.count_locked), backgroundColor:TOPIC_COLORS }] },
+    options:{ indexAxis:'y', plugins:{ title:{display:true, text:'Locked topic sizes (BERTopic, never re-derived)'} } }
+  });
+}
+
+function renderEvidence(){
+  const el = document.getElementById('tab-evidence');
+  let html = `<p class="note">All values below are locked constants verified from Stage 6 Cell 6 (20 June 2026). They are not recomputed by this pipeline.</p>
+  <table><tr><th>Topic</th><th>D1 (outcome reporting)</th><th>D2 (rigorous design)</th><th>D3</th><th>Composite</th><th>Tier</th></tr>`;
+  DATA.topics.forEach(t=>{
+    const ev = t.evidence;
+    html += `<tr><td>${t.label}</td><td>${ev.d1_pct}% (${ev.d1_rating})</td><td>${ev.d2_pct}% (${ev.d2_rating})</td><td>${ev.d3_rating}</td><td>${ev.composite}</td><td><span class="tier tier-${ev.tier}">${ev.tier}</span></td></tr>`;
+  });
+  html += '</table><h3 style="margin-top:24px;">Notes</h3>';
+  DATA.topics.forEach(t=>{
+    html += `<p><strong>${t.label}:</strong> ${t.evidence.note}</p>`;
+  });
+  el.innerHTML = html;
+}
+
+function renderGaps(){
+  const el = document.getElementById('tab-gaps');
+  const ga = DATA.gap_analysis;
+  let html = `<div class="chart-box"><canvas id="designChart"></canvas></div>
+  <h3>Headline gaps</h3><table><tr><th>#</th><th>Gap</th><th>Affected topics</th></tr>`;
+  ga.headline_gaps.forEach(g=>{
+    html += `<tr><td>${g.rank}</td><td>${g.gap}</td><td>${g.affected_topics.join(', ')}</td></tr>`;
+  });
+  html += '</table>';
+  el.innerHTML = html;
+
+  const labels = Object.keys(ga.study_design_distribution);
+  new Chart(document.getElementById('designChart'), {
+    type:'bar',
+    data:{ labels, datasets:[{ label:'Papers', data:Object.values(ga.study_design_distribution), backgroundColor:'#CC0000' }] },
+    options:{ indexAxis:'y', plugins:{ title:{display:true, text:'Study design distribution'} } }
+  });
+}
+
+renderMeta();
+renderOverview();
+renderTopics();
+renderEvidence();
+renderGaps();
+</script>
+</body>
+</html>

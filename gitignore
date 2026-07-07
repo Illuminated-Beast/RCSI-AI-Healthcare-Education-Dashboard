@@ -1,0 +1,11 @@
+# Never commit source research data — block all spreadsheets by default,
+# then explicitly allow only the dummy dataset back in.
+*.xlsx
+*.xls
+*.csv
+!Dashboard_Input_Template_DUMMY.xlsx
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+.vscode/

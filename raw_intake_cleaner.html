@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Raw Intake Cleaner — AI in Healthcare Education</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+  :root{
+    --ink:#16243F; --paper:#FAF8F3; --paper-dim:#F1EEE5; --slate:#5B6472;
+    --red:#CC0000; --line:#DEDAD0; --line-dark:#33415C;
+    --high:#2F6F4E; --medium:#C97A2B; --low:#A4373A;
+    --mono:'IBM Plex Mono',monospace; --serif:'Newsreader',serif; --sans:'Inter',sans-serif;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);}
+  header.masthead{background:var(--ink);color:var(--paper);padding:28px 32px 22px;border-bottom:3px solid var(--red);}
+  .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#9FB0C9;margin:0 0 8px;}
+  header.masthead h1{font-family:var(--serif);font-weight:600;font-size:28px;margin:0 0 4px;letter-spacing:-.01em;}
+  header.masthead p{margin:0;font-size:13px;color:#C6CEDC;font-family:var(--mono);}
+
+  #gate{margin:24px 32px;border:1px solid var(--low);background:#FBEAEA;padding:18px 22px;}
+  #gate h2{font-family:var(--serif);font-size:16px;margin:0 0 8px;color:var(--low);}
+  #gate p{margin:0 0 6px;font-size:13px;color:#5c1e20;}
+  #gate code{font-family:var(--mono);background:#fff;border:1px solid #e3b8b8;padding:1px 5px;border-radius:3px;font-size:12px;}
+
+  #intake{margin:20px 32px;border:2px dashed var(--line-dark);border-radius:2px;
+    background:repeating-linear-gradient(135deg,var(--paper-dim),var(--paper-dim) 10px,#ECE8DC 10px,#ECE8DC 20px);
+    padding:26px 28px;position:relative;transition:border-color .15s, background .15s;}
+  #intake.drag-over{border-color:var(--red);background:#FBEAEA;}
+  #intake .corner-label{position:absolute;top:-11px;left:18px;background:var(--paper);
+    font-family:var(--mono);font-size:10px;letter-spacing:.12em;padding:0 8px;color:var(--slate);}
+  #intake-row{display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;}
+  #intake-text h2{font-family:var(--serif);font-size:18px;margin:0 0 4px;font-weight:600;}
+  #intake-text p{margin:0;font-size:13px;color:var(--slate);max-width:560px;}
+  #intake-text code{font-family:var(--mono);background:#fff;border:1px solid var(--line);padding:1px 5px;border-radius:3px;font-size:12px;}
+  #file-btn{font-family:var(--mono);font-size:12px;letter-spacing:.04em;background:var(--ink);color:#fff;border:none;
+    padding:11px 18px;border-radius:2px;cursor:pointer;white-space:nowrap;}
+  #file-btn:hover{background:var(--red);}
+  #file-input{display:none;}
+  #intake-status{margin-top:14px;font-family:var(--mono);font-size:12px;}
+  .status-ok{color:var(--high);} .status-warn{color:var(--medium);} .status-err{color:var(--low);}
+
+  main{padding:0 32px 60px;max-width:1180px;}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);margin:20px 0;}
+  .card{background:#fff;padding:16px 18px;}
+  .card .num{font-family:var(--serif);font-size:28px;font-weight:600;color:var(--red);line-height:1;}
+  .card .lbl{font-family:var(--mono);font-size:11px;color:var(--slate);margin-top:6px;text-transform:uppercase;letter-spacing:.04em;}
+  .card.gap .num{color:var(--low);}
+
+  table.simple{width:100%;border-collapse:collapse;font-size:12.5px;background:#fff;margin-bottom:20px;}
+  table.simple th,table.simple td{border:1px solid var(--line);padding:7px 9px;text-align:left;}
+  table.simple th{font-family:var(--mono);font-size:10.5px;text-transform:uppercase;letter-spacing:.04em;background:var(--paper-dim);color:var(--slate);}
+  td.flag{color:var(--low);font-family:var(--mono);font-size:11px;font-weight:600;}
+  td.ok{color:var(--high);font-family:var(--mono);font-size:11px;}
+
+  #download-row{margin:10px 0 30px;display:none;}
+  #download-btn{font-family:var(--mono);font-size:13px;background:var(--red);color:#fff;border:none;
+    padding:13px 22px;border-radius:2px;cursor:pointer;}
+  #download-btn:hover{background:#a80000;}
+  #download-note{font-family:var(--mono);font-size:11px;color:var(--slate);margin-top:8px;max-width:640px;}
+
+  #legend{margin:0 0 24px;font-family:var(--mono);font-size:12px;color:var(--slate);}
+  #legend .high{color:var(--high);} #legend .low{color:var(--low);}
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <p class="eyebrow">RCSI · MSc TAPM Dissertation · Scoping Review</p>
+  <h1>Raw Intake Cleaner</h1>
+  <p>Raw search export → dissertation-grade columns. Automates what has a documented rule. Nothing else.</p>
+</header>
+
+<section id="gate">
+  <h2>This tool does not classify papers or assign topics</h2>
+  <p><b>Classification</b> (General / Exam Performance / Advocation) was a manual judgment call in your original
+  screening — there is no formula for it, so it is never guessed here.</p>
+  <p><b>Topic_Label</b> requires the actual saved BERTopic model (embeddings + KMeans) — that cannot run in a
+  browser, so it is never guessed here either.</p>
+  <p>Every row this tool outputs will have both fields explicitly flagged <code>NEEDS MANUAL CLASSIFICATION</code>
+  and <code>NEEDS BERTOPIC ASSIGNMENT</code>. The dynamic dashboard will refuse to load a file until those flags
+  are replaced with real values — that's the existing label validation doing its job, not new behaviour.</p>
+</section>
+
+<section id="intake">
+  <span class="corner-label">INTAKE — RAW SHEET</span>
+  <div id="intake-row">
+    <div id="intake-text">
+      <h2>Drop in the raw search export</h2>
+      <p>Expected columns: <code>Title, Authors, Journal, Date, Link, Matched AI, Matched education, Abstracts</code>.
+      Column order doesn't matter, header spelling does.</p>
+    </div>
+    <div>
+      <button id="file-btn" type="button">Choose .xlsx file</button>
+      <input id="file-input" type="file" accept=".xlsx,.xls">
+    </div>
+  </div>
+  <div id="intake-status"></div>
+</section>
+
+<main>
+  <div id="results"></div>
+  <div id="download-row">
+    <button id="download-btn" type="button">Download cleaned file (.xlsx)</button>
+    <div id="download-note"></div>
+  </div>
+</main>
+
+<script>
+const REQUIRED_RAW_COLS = ["Title","Authors","Journal","Date","Link","Matched AI","Matched education","Abstracts"];
+
+/* Outcome_Reported: documented 6-pattern Excel approximation (Stage 1, Step 6).
+   The full method used to produce the locked 342/507 flag has 14 patterns in
+   Python — that longer list is not available here, so this is explicitly the
+   simplified version, not a claim of exact reproduction. */
+/* Outcome_Reported: the real Stage 1 Cell 4 regex (OUTCOME_PATTERN), verified against
+   Screening_3Categories_Cleaned.xlsx to reproduce the locked 342/507 (67.5%) figure exactly.
+   This replaces an earlier 6-pattern approximation that undercounted by 39 papers (7.7pp). */
+const OUTCOME_PATTERNS = [
+  /\d+\.?\d*\s*%/i, /p\s*[<=>]\s*0\.\d+/i, /accuracy/i, /precision/i, /recall/i, /f1/i,
+  /pass\s*rate/i, /score/i, /performance/i, /sensitivity/i, /specificity/i, /auroc/i, /auc/i,
+  /statistically significant/i, /chi.square/i, /cram.r/i, /regression/i,
+  /correlation/i, /odds ratio/i, /hazard ratio/i
+];
+
+/* Source_DB: documented exact rule (Stage 1, Step 9) — link domain match. */
+function sourceDb(link){
+  const l = String(link || '').toLowerCase();
+  if(l.includes('pubmed') || l.includes('ncbi.nlm.nih.gov')) return 'PubMed';
+  if(l.includes('semanticscholar')) return 'Semantic Scholar';
+  if(l.includes('scopus') || l.includes('elsevier')) return 'Scopus';
+  return 'Unknown';
+}
+
+function extractYear(dateVal){
+  const s = String(dateVal || '');
+  const m = s.match(/(19|20)\d{2}/);
+  return m ? parseInt(m[0], 10) : null;
+}
+
+function period(year){
+  if(year === null) return null;
+  return year <= 2022 ? 'Pre-ChatGPT (<=2022)' : 'Post-ChatGPT (2023+)';
+}
+
+function hasAbstract(abstract){
+  const s = String(abstract || '').trim();
+  return s.length >= 80 ? 'Yes' : 'No';
+}
+
+function outcomeReported(abstract){
+  const s = String(abstract || '');
+  return OUTCOME_PATTERNS.some(re => re.test(s)) ? 'Yes' : 'No';
+}
+
+const intake = document.getElementById('intake');
+const fileInput = document.getElementById('file-input');
+document.getElementById('file-btn').onclick = () => fileInput.click();
+fileInput.onchange = e => { if(e.target.files[0]) handleFile(e.target.files[0]); };
+['dragenter','dragover'].forEach(ev => intake.addEventListener(ev, e => { e.preventDefault(); intake.classList.add('drag-over'); }));
+['dragleave','drop'].forEach(ev => intake.addEventListener(ev, e => { e.preventDefault(); intake.classList.remove('drag-over'); }));
+intake.addEventListener('drop', e => { if(e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]); });
+
+function setStatus(msg, cls){
+  const el = document.getElementById('intake-status');
+  el.textContent = msg; el.className = cls || '';
+}
+
+let cleanedRows = null;
+
+function handleFile(file){
+  setStatus('Reading ' + file.name + ' …', '');
+  const reader = new FileReader();
+  reader.onload = ev => {
+    try{
+      const wb = XLSX.read(ev.target.result, {type:'array'});
+      const rows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], {defval:null});
+      processRows(rows, file.name);
+    }catch(err){
+      setStatus('Could not read file: ' + err.message, 'status-err');
+    }
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+function processRows(rows, filename){
+  if(!rows.length){ setStatus('No data rows found in ' + filename, 'status-err'); return; }
+  const missing = REQUIRED_RAW_COLS.filter(c => !(c in rows[0]));
+  if(missing.length){
+    setStatus('Rejected — missing required column(s): ' + missing.join(', '), 'status-err');
+    return;
+  }
+
+  let yearMissing = 0, abstractMissing = 0, sourceUnknown = 0;
+  cleanedRows = rows.map(r => {
+    const year = extractYear(r.Date);
+    if(year === null) yearMissing++;
+    const abs = r.Abstracts;
+    if(!abs || String(abs).trim().length === 0) abstractMissing++;
+    const src = sourceDb(r.Link);
+    if(src === 'Unknown') sourceUnknown++;
+    return {
+      Title: r.Title,
+      Year: year,
+      Period: period(year),
+      Classification: 'NEEDS MANUAL CLASSIFICATION',
+      Topic_Number: null,
+      Topic_Label: 'NEEDS BERTOPIC ASSIGNMENT',
+      Has_Abstract: hasAbstract(abs),
+      Outcome_Reported: outcomeReported(abs),
+      Source_DB: src,
+    };
+  });
+
+  setStatus(rows.length + ' rows processed from ' + filename + '.', 'status-ok');
+  renderResults(rows.length, yearMissing, abstractMissing, sourceUnknown);
+}
+
+function renderResults(total, yearMissing, abstractMissing, sourceUnknown){
+  const el = document.getElementById('results');
+  el.innerHTML = `
+    <div class="cards">
+      <div class="card"><div class="num">${total}</div><div class="lbl">Rows processed</div></div>
+      <div class="card"><div class="num">${total}</div><div class="lbl">Flagged: needs classification</div></div>
+      <div class="card"><div class="num">${total}</div><div class="lbl">Flagged: needs topic assignment</div></div>
+      <div class="card ${yearMissing?'gap':''}"><div class="num">${yearMissing}</div><div class="lbl">Year not extracted</div></div>
+      <div class="card ${abstractMissing?'gap':''}"><div class="num">${abstractMissing}</div><div class="lbl">Missing abstract</div></div>
+      <div class="card ${sourceUnknown?'gap':''}"><div class="num">${sourceUnknown}</div><div class="lbl">Source_DB unresolved</div></div>
+    </div>
+    <p id="legend"><span class="high">Auto-filled:</span> Year, Period, Has_Abstract, Outcome_Reported, Source_DB &nbsp;·&nbsp;
+    <span class="low">Always flagged:</span> Classification, Topic_Label</p>
+    <table class="simple">
+      <tr><th>Title</th><th>Year</th><th>Period</th><th>Classification</th><th>Topic_Label</th><th>Has_Abstract</th><th>Outcome_Reported</th><th>Source_DB</th></tr>
+      ${cleanedRows.slice(0,8).map(r => `<tr>
+        <td>${(r.Title||'').toString().slice(0,60)}</td>
+        <td>${r.Year ?? '<span class="flag">missing</span>'}</td>
+        <td>${r.Period ?? '<span class="flag">missing</span>'}</td>
+        <td class="flag">${r.Classification}</td>
+        <td class="flag">${r.Topic_Label}</td>
+        <td class="ok">${r.Has_Abstract}</td>
+        <td class="ok">${r.Outcome_Reported}</td>
+        <td class="${r.Source_DB==='Unknown'?'flag':'ok'}">${r.Source_DB}</td>
+      </tr>`).join('')}
+    </table>
+    <p style="font-family:var(--mono);font-size:11px;color:var(--slate);">Showing first 8 of ${total} rows.</p>
+  `;
+  document.getElementById('download-row').style.display = 'block';
+  document.getElementById('download-note').textContent =
+    'This file will be rejected by the dashboard until Classification and Topic_Label are filled in manually / via the saved BERTopic model.';
+}
+
+document.getElementById('download-btn').onclick = () => {
+  if(!cleanedRows) return;
+  const ws = XLSX.utils.json_to_sheet(cleanedRows);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Paper_Topic_Assignments');
+  XLSX.writeFile(wb, 'Cleaned_Needs_Classification_And_Topics.xlsx');
+};
+</script>
+</body>
+</html>
