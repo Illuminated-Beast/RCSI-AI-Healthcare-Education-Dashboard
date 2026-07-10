@@ -5,7 +5,7 @@ education. This repo contains the analysis and visualisation tooling only.
 **The underlying research dataset (paper titles, authors, links, abstracts) is
 never included here and never will be** — see [Data policy](#data-policy) below.
 
-Live site: `https://<your-username>.github.io/<repo-name>/`
+Live site: `https://Illuminated-Beast.github.io/RCSI-AI-Healthcare-Education-Dashboard/`
 
 ## What's here
 
