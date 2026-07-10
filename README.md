@@ -71,6 +71,6 @@ research supervisor, not this repository.
 
 ## License
 
-Code in this repository may be reused under [MIT License](LICENSE) unless
+Code in this repository should not be reused under any (LICENSE) unless
 stated otherwise. This does not extend to any research findings, which
 remain the author's and their institution's.
