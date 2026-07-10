@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AI in Healthcare Education - Research Dashboard</title>
+<title>AI in Healthcare Education — Research Dashboard</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
@@ -36,7 +36,7 @@
   header .eyebrow { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; opacity: 0.8; margin-bottom: 6px; }
   header h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.3px; line-height: 1.25; }
   header .meta { font-size: 12px; opacity: 0.75; margin-top: 8px; display: flex; gap: 24px; flex-wrap: wrap; }
-  header .meta span::before { content: "- "; }
+  header .meta span::before { content: "— "; }
 
   /* TABS */
   nav.tabs { background: white; border-bottom: 2px solid var(--rule); padding: 0 40px; display: flex; gap: 0; overflow-x: auto; }
@@ -188,45 +188,9 @@
 </head>
 <body>
 
-<div id="splash-overlay" style="position:fixed;inset:0;background:var(--bg);z-index:9999;overflow-y:auto;">
-  <div style="max-width:760px;margin:0 auto;padding:48px 24px 60px;">
-    <div style="font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--mid);margin-bottom:8px;">Before you start</div>
-    <h1 style="font-size:26px;margin-bottom:6px;">How to read this dashboard</h1>
-    <p style="color:var(--mid);font-size:14px;margin-bottom:28px;">Two things worth knowing before you look at any tab.</p>
-
-    <div style="background:var(--card);border:1px solid var(--rule);border-radius:6px;padding:20px 22px;margin-bottom:18px;">
-      <h2 style="font-size:16px;margin-bottom:10px;">The Evidence Score: D1, D2, D3</h2>
-      <p style="font-size:14px;line-height:1.6;margin-bottom:10px;">Every topic is scored on three dimensions, each rated LOW (1) / MEDIUM (2) / HIGH (3):</p>
-      <ul style="font-size:14px;line-height:1.7;padding-left:20px;margin-bottom:10px;">
-        <li><strong>D1 - Outcome Reporting (50% weight):</strong> % of papers in the topic that report a measurable result (accuracy, p-value, score, etc.)</li>
-        <li><strong>D2 - Design Quality (30% weight):</strong> % of papers using a rigorous study design (RCT, systematic review, benchmarking, cohort)</li>
-        <li><strong>D3 - Vocabulary Maturity (20% weight):</strong> whether a topic's language favours evaluative terms (measured outcomes) over exploratory terms (early-stage framing)</li>
-      </ul>
-      <p style="font-size:14px;line-height:1.6;margin-bottom:8px;">These combine into a <strong>Composite</strong> score: D1×0.5 + D2×0.3 + D3×0.2, on a 1–3 scale, sorted into a final tier:</p>
-      <table style="font-size:13px;border-collapse:collapse;width:100%;">
-        <tr><td style="padding:4px 10px 4px 0;"><span class="badge high">HIGH</span></td><td style="padding:4px 0;">Composite ≥ 2.5</td></tr>
-        <tr><td style="padding:4px 10px 4px 0;"><span class="badge mid">MEDIUM</span></td><td style="padding:4px 0;">1.7 – 2.49</td></tr>
-        <tr><td style="padding:4px 10px 4px 0;"><span class="badge low">LOW</span></td><td style="padding:4px 0;">&lt; 1.7</td></tr>
-      </table>
-      <p style="font-size:12.5px;color:var(--mid);margin-top:12px;">These scores are locked reference values verified once against the source Stage 6 output - they do not change when you upload a new dataset. Only corpus counts, splits, and cross-checks recompute live.</p>
-    </div>
-
-    <div style="background:var(--card);border:1px solid var(--rule);border-radius:6px;padding:20px 22px;margin-bottom:28px;">
-      <h2 style="font-size:16px;margin-bottom:10px;">The six locked topics - and only these six</h2>
-      <p style="font-size:14px;line-height:1.6;margin-bottom:12px;">Every paper in this corpus belongs to exactly one of six topics, produced once by a BERTopic model and then frozen. Uploaded data is validated against these exact labels - anything else is rejected, not guessed.</p>
-      <table style="width:100%;font-size:13px;border-collapse:collapse;">
-        <thead><tr style="text-align:left;color:var(--mid);"><th style="padding:4px 8px 4px 0;">#</th><th style="padding:4px 8px;">Topic</th><th style="padding:4px 0;">n</th></tr></thead>
-        <tbody id="splash-topic-rows"></tbody>
-      </table>
-    </div>
-
-    <button id="splash-continue" style="font-family:monospace;font-size:13px;background:var(--ink);color:#fff;border:none;padding:12px 22px;border-radius:3px;cursor:pointer;">Continue to dashboard →</button>
-  </div>
-</div>
-
 <header>
-  <div class="eyebrow">RCSI MSc TAPM - Research Project 25100532</div>
-  <h1>Use of AI in Formal Healthcare Education<br>Exploratory Data Analysis - Stages 0 to 7</h1>
+  <div class="eyebrow">RCSI MSc TAPM — Research Project 25100532</div>
+  <h1>Use of AI in Formal Healthcare Education<br>Exploratory Data Analysis — Stages 0 to 7</h1>
   <div class="meta">
     <span>Sumedh Kadam</span>
     <span>Supervisor: Dr. Ali Hasnain</span>
@@ -245,18 +209,11 @@
       <strong style="font-size:14px;">Showing the locked 507-paper reference corpus.</strong>
       <span style="font-size:13px;color:var(--mid);">Drop in a new <code>Paper_Topic_Assignments</code>-shaped .xlsx to
       recompute Overview, Topic Profiles, and the Evidence cross-check live in your browser. Topic_Label is matched
-      against the six locked labels - anything else is rejected. <strong>Evidence scores (D1/D2/D3), Publication Trends,
-      and AI Tools &amp; Keywords stay as verified reference data regardless of what you upload</strong> - they are not
+      against the six locked labels — anything else is rejected. <strong>Evidence scores (D1/D2/D3), Publication Trends,
+      and AI Tools &amp; Keywords stay as verified reference data regardless of what you upload</strong> — they are not
       recomputed from an input file.</span>
-      <div style="font-size:12.5px;color:var(--mid);margin-top:8px;">
-        Required columns (exact names): <strong>Title</strong>, <strong>Year</strong>, <strong>Period</strong>,
-        <strong>Classification</strong>, <strong>Topic_Number</strong>, <strong>Topic_Label</strong>,
-        <strong>Has_Abstract</strong>, <strong>Outcome_Reported</strong>, <strong>Source_DB</strong>.
-      </div>
     </div>
-    <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end;">
-      <a href="Dashboard_Input_Template_DUMMY.xlsx" download style="font-family:monospace;font-size:11.5px;
-        color:var(--red);text-decoration:none;white-space:nowrap;">↓ Download sample dataset (dummy data)</a>
+    <div>
       <button id="file-btn" type="button" style="font-family:monospace;font-size:12px;background:var(--ink);
         color:#fff;border:none;padding:10px 16px;border-radius:2px;cursor:pointer;white-space:nowrap;">Upload new dataset</button>
       <input id="file-input" type="file" accept=".xlsx,.xls" style="display:none;">
@@ -276,7 +233,6 @@
   <button onclick="showTab('evidence')">D1·D2·D3 Evidence</button>
   <button onclick="showTab('gaps')">Gap Analysis</button>
   <button onclick="showTab('keywords')">AI Tools & Keywords</button>
-  <button onclick="showTab('guide')">Scoring Guide</button>
 </nav>
 
 <!-- ===== TAB 1: OVERVIEW ===== -->
@@ -287,7 +243,7 @@
     <div class="big-num">88.6%</div>
     <div class="desc">
       <h3>The 2023 Generative AI Inflection Point is the structural story of this corpus</h3>
-      <p>449 of 507 included papers were published <em>after</em> November 2022. The field did not gradually adopt AI - it accelerated almost entirely within a 2-year window (2023–2025). This is not a decade-long trend; it is a step-change, and the analysis is structured around it.</p>
+      <p>449 of 507 included papers were published <em>after</em> November 2022. The field did not gradually adopt AI — it accelerated almost entirely within a 2-year window (2023–2025). This is not a decade-long trend; it is a step-change, and the analysis is structured around it.</p>
     </div>
   </div>
 
@@ -327,7 +283,7 @@
   <div class="chart-grid">
     <div class="chart-box">
       <h3>Classification Distribution</h3>
-      <div class="chart-sub">3 manually screened categories - 507 papers total</div>
+      <div class="chart-sub">3 manually screened categories — 507 papers total</div>
       <canvas id="classDonut"></canvas>
     </div>
     <div class="chart-box">
@@ -357,7 +313,7 @@
   <div class="note-banner" style="margin-top:10px;"><strong>Reference data:</strong> this tab shows verified figures from the locked 507-paper corpus and is not recomputed when you upload a new dataset above.</div>
     <div class="chart-grid single">
     <div class="chart-box">
-      <h3>Full Publication Timeline (2003–2025) - All 3 Categories</h3>
+      <h3>Full Publication Timeline (2003–2025) — All 3 Categories</h3>
       <div class="chart-sub">Stacked by classification. Note near-zero activity until 2022, then explosive growth</div>
       <canvas id="stackedTrend" style="max-height:320px"></canvas>
     </div>
@@ -392,7 +348,7 @@
 
 <!-- ===== TAB 3: NLP TOPICS ===== -->
 <div id="tab-topics" class="panel">
-  <div class="section-title">NLP Topic Modelling - BERTopic (KMeans, 6 Clusters)</div>
+  <div class="section-title">NLP Topic Modelling — BERTopic (KMeans, 6 Clusters)</div>
 
   <div class="chart-grid">
     <div class="chart-box">
@@ -410,7 +366,7 @@
   <div class="chart-grid single">
     <div class="chart-box">
       <h3>Topic Growth Over Time (2019–2025)</h3>
-      <div class="chart-sub">Annual paper count per topic - reveals which topics are newest</div>
+      <div class="chart-sub">Annual paper count per topic — reveals which topics are newest</div>
       <canvas id="topicTimeline" style="max-height:300px"></canvas>
     </div>
   </div>
@@ -503,35 +459,35 @@
 
 <!-- ===== TAB 4: EVIDENCE GAP ===== -->
 <div id="tab-evidence" class="panel">
-  <div class="section-title">D1 · D2 · D3 Composite Evidence Scoring - All Topics Verified (Stage 6, 20 Jun 2026)</div>
+  <div class="section-title">D1 · D2 · D3 Composite Evidence Scoring — All Topics Verified (Stage 6, 20 Jun 2026)</div>
 
   <div class="kpi-row">
     <div class="kpi" style="--accent:#166534"><div class="num">0</div><div class="label">HIGH evidence topics</div><div class="sub">None reached composite ≥ 2.5</div></div>
-    <div class="kpi" style="--accent:#ca8a04"><div class="num">4</div><div class="label">MEDIUM evidence topics</div><div class="sub">Composite 1.7 – 2.49</div></div>
-    <div class="kpi" style="--accent:#dc2626"><div class="num">2</div><div class="label">LOW evidence topics</div><div class="sub">Composite &lt; 1.7</div></div>
+    <div class="kpi" style="--accent:#ca8a04"><div class="num">4</div><div class="label">MEDIUM evidence topics</div><div class="sub">Composite 1.75 – 2.49</div></div>
+    <div class="kpi" style="--accent:#dc2626"><div class="num">2</div><div class="label">LOW evidence topics</div><div class="sub">Composite &lt; 1.75</div></div>
     <div class="kpi" style="--accent:var(--red)"><div class="num">3</div><div class="label">D1/D2 inversions</div><div class="sub">Identified across 6 topics</div></div>
   </div>
 
   <div class="ev-callout">
-    <div class="ev-ctitle">Primary finding - D1/D2 inversion (Topic 1: AI Benchmarking)</div>
-    <p>D1 = 94.0% HIGH (highest in corpus) paired with D2 = 7.8% LOW. Papers measure AI accuracy on MCQ and licensing exams extensively but fewer than 1 in 12 use an experimental or systematic design. Replicated across three BERTopic re-fits - this is a property of the literature, not a modelling artefact. Composite 2.4 MEDIUM.</p>
+    <div class="ev-ctitle">Primary finding — D1/D2 inversion (Topic 1: AI Benchmarking)</div>
+    <p>D1 = 94.0% HIGH (highest in corpus) paired with D2 = 7.8% LOW. Papers measure AI accuracy on MCQ and licensing exams extensively but fewer than 1 in 12 use an experimental or systematic design. Replicated across three BERTopic re-fits — this is a property of the literature, not a modelling artefact. Composite 2.4 MEDIUM.</p>
   </div>
 
   <div class="ev-callout-blue">
-    <div class="ev-ctitle">Reverse inversion - Topic 2: AI in Medical Imaging</div>
-    <p>D2 = 29.9% HIGH (highest in corpus - uses systematic reviews and surgical cohort studies) paired with D1 = 50.5% LOW. Good methodology, but half the papers do not report a measurable outcome. Different failure mode from Topic 1. Composite 1.8 MEDIUM.</p>
+    <div class="ev-ctitle">Reverse inversion — Topic 2: AI in Medical Imaging</div>
+    <p>D2 = 29.9% HIGH (highest in corpus — uses systematic reviews and surgical cohort studies) paired with D1 = 50.5% LOW. Good methodology, but half the papers do not report a measurable outcome. Different failure mode from Topic 1. Composite 1.8 MEDIUM.</p>
   </div>
 
   <div class="ev-callout-green">
-    <div class="ev-ctitle">Third inversion - Topic 5: Perceptions, Readiness & Knowledge-Attitude</div>
-    <p>D1 = 82.1% HIGH (second highest in corpus) paired with D2 = 3.6% LOW (lowest in entire corpus). Knowledge-attitude surveys reliably report attitudinal outcomes but almost universally avoid formal experimental designs. D3 also LOW - composite 2.0 MEDIUM despite high D1.</p>
+    <div class="ev-ctitle">Third inversion — Topic 5: Perceptions, Readiness & Knowledge-Attitude</div>
+    <p>D1 = 82.1% HIGH (second highest in corpus) paired with D2 = 3.6% LOW (lowest in entire corpus). Knowledge-attitude surveys reliably report attitudinal outcomes but almost universally avoid formal experimental designs. D3 also LOW — composite 2.0 MEDIUM despite high D1.</p>
   </div>
 
   <table class="ev-table" id="ev-scoring-table"></table>
 
   <div style="display:flex;gap:20px;flex-wrap:wrap;font-size:11px;color:var(--mid);margin-bottom:28px;">
-    <span style="display:flex;align-items:center;gap:5px;"><span class="inv-badge inv-1">↕ Inv</span> D1 HIGH / D2 LOW - measures outcomes without rigorous designs</span>
-    <span style="display:flex;align-items:center;gap:5px;"><span class="inv-badge inv-r">↕ Rev</span> D1 LOW / D2 HIGH - rigorous designs without outcome reporting</span>
+    <span style="display:flex;align-items:center;gap:5px;"><span class="inv-badge inv-1">↕ Inv</span> D1 HIGH / D2 LOW — measures outcomes without rigorous designs</span>
+    <span style="display:flex;align-items:center;gap:5px;"><span class="inv-badge inv-r">↕ Rev</span> D1 LOW / D2 HIGH — rigorous designs without outcome reporting</span>
   </div>
 
   <div class="rubric-two-col">
@@ -550,8 +506,8 @@
       <table class="rubric-table">
         <tr><th>Tier</th><th>Threshold</th></tr>
         <tr><td><span class="badge high">HIGH</span></td><td>Composite ≥ 2.5</td></tr>
-        <tr><td><span class="badge mid">MEDIUM</span></td><td>1.7 – 2.49</td></tr>
-        <tr><td><span class="badge low">LOW</span></td><td>&lt; 1.7</td></tr>
+        <tr><td><span class="badge mid">MEDIUM</span></td><td>1.75 – 2.49</td></tr>
+        <tr><td><span class="badge low">LOW</span></td><td>&lt; 1.75</td></tr>
       </table>
     </div>
   </div>
@@ -565,15 +521,15 @@
 
 <!-- ===== TAB 5: GAP ANALYSIS ===== -->
 <div id="tab-gaps" class="panel">
-  <div class="section-title">Gap Identification - Study Design &amp; Discipline Coverage (Stage 5)</div>
+  <div class="section-title">Gap Identification — Study Design &amp; Discipline Coverage (Stage 5)</div>
 
   <div class="note-banner"><strong>Verification:</strong> Counts from Stage 5 regex classifier on master_corpus.xlsx. RCT count presented as range 6 (strict PICO) to 13 (broad criteria).</div>
 
   <div class="kpi-row">
     <div class="kpi" style="--accent:var(--red)"><div class="num">2.6%</div><div class="label">RCT share of corpus</div><div class="sub">6–13 papers (strict–broad)</div></div>
     <div class="kpi" style="--accent:var(--red)"><div class="num">26.4%</div><div class="label">Survey dominance</div><div class="sub">134 of 507 papers</div></div>
-    <div class="kpi" style="--accent:var(--red)"><div class="num">2</div><div class="label">Allied Health papers</div><div class="sub">0 pre-2023 - emerging field</div></div>
-    <div class="kpi" style="--accent:var(--red)"><div class="num">18</div><div class="label">Nursing papers</div><div class="sub">0 pre-2023 - emerging field</div></div>
+    <div class="kpi" style="--accent:var(--red)"><div class="num">2</div><div class="label">Allied Health papers</div><div class="sub">0 pre-2023 — emerging field</div></div>
+    <div class="kpi" style="--accent:var(--red)"><div class="num">18</div><div class="label">Nursing papers</div><div class="sub">0 pre-2023 — emerging field</div></div>
   </div>
 
   <div class="chart-grid">
@@ -584,7 +540,7 @@
     </div>
     <div class="chart-box">
       <h3>Healthcare Discipline Coverage (n = 507)</h3>
-      <div class="chart-sub">Nursing and Allied Health (red) have zero pre-2023 papers - structural absence, not declining interest.</div>
+      <div class="chart-sub">Nursing and Allied Health (red) have zero pre-2023 papers — structural absence, not declining interest.</div>
       <canvas id="disciplineChart" style="max-height:340px"></canvas>
     </div>
   </div>
@@ -593,12 +549,12 @@
   <div class="gap-card-grid" id="gap-cards"></div>
 
   <div class="ev-callout-blue" style="margin-top:8px">
-    <div class="ev-ctitle">Framing note - emerging vs under-represented</div>
+    <div class="ev-ctitle">Framing note — emerging vs under-represented</div>
     <p>Nursing (18 papers) and Allied Health (2 papers) have zero pre-2023 presence. These are <strong>emerging fields</strong> entering the AI education discourse after November 2022, not disciplines with declining interest. The absence is structural exclusion from early research, not disengagement.</p>
   </div>
 </div>
 <div id="tab-keywords" class="panel">
-  <div class="section-title">AI Tool Vocabulary - Keyword Analysis</div>
+  <div class="section-title">AI Tool Vocabulary — Keyword Analysis</div>
   <div class="note-banner" style="margin-top:10px;"><strong>Reference data:</strong> this tab shows verified figures from the locked 507-paper corpus and is not recomputed when you upload a new dataset above.</div>
   
   <div class="chart-grid">
@@ -621,77 +577,18 @@
       <canvas id="journalBarDetail"></canvas>
     </div>
     <div class="chart-box">
-      <h3>Keyword Vocabulary Shift - Pre vs Post 2023</h3>
+      <h3>Keyword Vocabulary Shift — Pre vs Post 2023</h3>
       <div class="chart-sub">Estimated distribution of AI terminology used in papers</div>
       <canvas id="vocabShift"></canvas>
     </div>
   </div>
 </div>
 
-<!-- ===== TAB: SCORING GUIDE ===== -->
-<div id="tab-guide" class="panel">
-<div class="section-title">What the Evidence Scores Mean</div>
-<p style="font-size:14px;color:#475569;max-width:760px;">
-Every topic in this dashboard is scored on three dimensions, verified directly from
-<code>Stage6_Evidence_Scoring.xlsx</code>. These are not estimates - they are the exact
-scoring rules the pipeline applied.
-</p>
-<table style="width:100%;max-width:820px;border-collapse:collapse;font-size:13px;margin:14px 0;">
-  <tr style="background:#f5f5f5;"><th style="text-align:left;padding:8px 10px;border:1px solid #ddd;">Dimension</th>
-    <th style="text-align:left;padding:8px 10px;border:1px solid #ddd;">Weight</th>
-    <th style="text-align:left;padding:8px 10px;border:1px solid #ddd;">What it measures</th>
-    <th style="text-align:left;padding:8px 10px;border:1px solid #ddd;">Thresholds</th></tr>
-  <tr><td style="padding:8px 10px;border:1px solid #ddd;"><strong>D1 - Outcome Reporting</strong></td>
-    <td style="padding:8px 10px;border:1px solid #ddd;">50%</td>
-    <td style="padding:8px 10px;border:1px solid #ddd;">% of papers in the topic reporting a measurable outcome (Stage 4 regex flag)</td>
-    <td style="padding:8px 10px;border:1px solid #ddd;">HIGH ≥80% · MEDIUM 60–79% · LOW &lt;60%</td></tr>
-  <tr><td style="padding:8px 10px;border:1px solid #ddd;"><strong>D2 - Design Quality</strong></td>
-    <td style="padding:8px 10px;border:1px solid #ddd;">30%</td>
-    <td style="padding:8px 10px;border:1px solid #ddd;">% using rigorous designs - RCT, systematic review, benchmarking, cohort (Stage 5)</td>
-    <td style="padding:8px 10px;border:1px solid #ddd;">HIGH ≥20% · MEDIUM 10–19% · LOW &lt;10%</td></tr>
-  <tr><td style="padding:8px 10px;border:1px solid #ddd;"><strong>D3 - Vocabulary Maturity</strong></td>
-    <td style="padding:8px 10px;border:1px solid #ddd;">20%</td>
-    <td style="padding:8px 10px;border:1px solid #ddd;">Ratio of evaluative to exploratory keywords (15 keywords/topic - supplementary signal)</td>
-    <td style="padding:8px 10px;border:1px solid #ddd;">HIGH ≥0.5 · MEDIUM 0.2–0.49 or no signal · LOW &lt;0.2</td></tr>
-</table>
-<p style="font-family:monospace;font-size:12.5px;background:#f8fafc;border-radius:4px;padding:10px 14px;margin:8px 0;">
-Composite = D1×0.5 + D2×0.3 + D3×0.2 &nbsp;→&nbsp; HIGH ≥2.5 · MEDIUM 1.7–2.49 · LOW &lt;1.7
-</p>
-<p style="font-size:13px;color:#475569;max-width:760px;">
-<strong>Known limitation, stated explicitly in the source rubric:</strong> AI Benchmarking &amp; Exam
-Performance scores HIGH on D1 (94.0%) but LOW on D2 (7.8%) - these papers report quantitative
-accuracy results (caught by D1) but rarely use formal design terms like "benchmark" (D2). Its
-MEDIUM composite (2.4) reflects this measurement tension, not a true evidence-quality deficit.
-Also note: D3 is a real, measured signal for only 2 of the 6 topics - the other 4 have zero
-evaluative/exploratory keyword hits and receive the "no signal → MEDIUM" default, not an actual
-vocabulary measurement.
-</p>
-
-<div class="section-title" style="margin-top:28px;">The Six Locked Topics - and Only These Six</div>
-<p style="font-size:14px;color:#475569;max-width:760px;">
-Every paper in this corpus belongs to exactly one of the following six categories, produced once
-by a BERTopic model (sentence-transformer embeddings + KMeans) and then frozen. No other topic
-label is valid anywhere in this system - uploading a file with a seventh label, a renamed label,
-or a misspelled label is rejected outright, not guessed at or silently reassigned.
-</p>
-<table style="width:100%;max-width:760px;border-collapse:collapse;font-size:13px;margin:14px 0;">
-  <tr style="background:#f5f5f5;"><th style="text-align:left;padding:8px 10px;border:1px solid #ddd;">#</th>
-    <th style="text-align:left;padding:8px 10px;border:1px solid #ddd;">Topic Label (exact)</th>
-    <th style="text-align:left;padding:8px 10px;border:1px solid #ddd;">n (locked)</th></tr>
-  <tr><td style="padding:8px 10px;border:1px solid #ddd;">1</td><td style="padding:8px 10px;border:1px solid #ddd;">AI Benchmarking &amp; Exam Performance</td><td style="padding:8px 10px;border:1px solid #ddd;">116</td></tr>
-  <tr><td style="padding:8px 10px;border:1px solid #ddd;">0</td><td style="padding:8px 10px;border:1px solid #ddd;">Generative AI Adoption &amp; Student Perceptions</td><td style="padding:8px 10px;border:1px solid #ddd;">111</td></tr>
-  <tr><td style="padding:8px 10px;border:1px solid #ddd;">2</td><td style="padding:8px 10px;border:1px solid #ddd;">AI in Medical Imaging &amp; Surgical Education</td><td style="padding:8px 10px;border:1px solid #ddd;">97</td></tr>
-  <tr><td style="padding:8px 10px;border:1px solid #ddd;">4</td><td style="padding:8px 10px;border:1px solid #ddd;">Simulation, Virtual Reality &amp; Clinical Training</td><td style="padding:8px 10px;border:1px solid #ddd;">96</td></tr>
-  <tr><td style="padding:8px 10px;border:1px solid #ddd;">5</td><td style="padding:8px 10px;border:1px solid #ddd;">Perceptions, Readiness &amp; Knowledge-Attitude Studies</td><td style="padding:8px 10px;border:1px solid #ddd;">56</td></tr>
-  <tr><td style="padding:8px 10px;border:1px solid #ddd;">3</td><td style="padding:8px 10px;border:1px solid #ddd;">Pharmacy Education &amp; Academic Integrity</td><td style="padding:8px 10px;border:1px solid #ddd;">31</td></tr>
-</table>
-
-
 <div style="max-width:1180px;margin:0 auto;padding:0 20px 14px;font-size:13px;">
   <a href="how_this_dashboard_works.html" target="_blank" rel="noopener">How this dashboard works &amp; the research pipeline behind it &rarr;</a>
 </div>
 
-<footer>RCSI MSc TAPM · Sumedh Kadam 25100532 · Supervisor: Dr. Ali Hasnain · Dashboard generated from Stages 0–6 pipeline outputs · July 2026</footer>
+<footer>RCSI MSc TAPM · Sumedh Kadam 25100532 · Supervisor: Dr. Ali Hasnain · Dashboard generated from Stages 0–2 pipeline outputs · July 2026</footer>
 
 <script>
 // ─── COLOUR PALETTE ───────────────────────────────────────────────────────────
@@ -800,13 +697,13 @@ function processUpload(rows, filename){
   rows = rows.filter(r => r.Year !== null && r.Year !== undefined && r.Year !== '');
   const missing = REQUIRED_COLS.filter(c => !(c in (rows[0]||{})));
   if (rows.length === 0 || missing.length) {
-    setIntakeStatus('Rejected - missing required column(s): ' + (missing.join(', ') || 'no data rows found'), '#dc2626');
+    setIntakeStatus('Rejected — missing required column(s): ' + (missing.join(', ') || 'no data rows found'), '#dc2626');
     return;
   }
   rows.forEach(r => { r.Topic_Label = String(r.Topic_Label).trim(); });
   const unknown = [...new Set(rows.map(r => r.Topic_Label))].filter(l => !(l in LABEL_TO_ID));
   if (unknown.length) {
-    setIntakeStatus('Rejected - Topic_Label not in the locked set: "' + unknown.join('", "') + '"', '#dc2626');
+    setIntakeStatus('Rejected — Topic_Label not in the locked set: "' + unknown.join('", "') + '"', '#dc2626');
     return;
   }
   rows.forEach(r => { r._id = LABEL_TO_ID[r.Topic_Label]; });
@@ -817,7 +714,7 @@ function processUpload(rows, filename){
   const lockedN = {1:116,0:111,2:97,4:96,5:56,3:31};
   const isLocked = Object.keys(lockedN).every(id => dist[id] === lockedN[id]) && Object.keys(dist).length === 6;
   setIntakeStatus(
-    rows.length + ' rows loaded from ' + filename + (isLocked ? ' - locked structure confirmed.' : ' - WARNING: distribution does not match the locked 116/111/97/96/56/31 structure. Overview and Topic Profiles below reflect this file as given.'),
+    rows.length + ' rows loaded from ' + filename + (isLocked ? ' — locked structure confirmed.' : ' — WARNING: distribution does not match the locked 116/111/97/96/56/31 structure. Overview and Topic Profiles below reflect this file as given.'),
     isLocked ? '#16a34a' : '#ca8a04'
   );
 
@@ -878,7 +775,7 @@ function getOverviewView(){
       yearLabels: years, byYear: null, categories };
   }
 
-  // Individual topic selected, no file uploaded - real per-topic reference data
+  // Individual topic selected, no file uploaded — real per-topic reference data
   const id = selectedTopicId;
   const [pre, post] = DEFAULT_TOPIC_PREPOST[id];
   const catOutcome = DEFAULT_TOPIC_OUTCOME_BY_CAT[id];
@@ -901,7 +798,7 @@ function renderOverviewLive(){
     note.className = 'note-banner';
     note.style.marginTop = '10px';
     note.innerHTML = `<strong>Filtered to:</strong> ${EV_TOPICS.find(t=>t.id===selectedTopicId).label}.` +
-      (v.topicScopedNoUpload ? ' Category-level pre/post split isn\'t available without an uploaded file for individual topics - showing totals only.' : '');
+      (v.topicScopedNoUpload ? ' Category-level pre/post split isn\'t available without an uploaded file for individual topics — showing totals only.' : '');
     const overviewPanel = document.getElementById('tab-overview');
     if (overviewPanel) overviewPanel.insertBefore(note, overviewPanel.firstChild);
   }
@@ -984,7 +881,7 @@ function updateTopicsTableFromRows(){
     const postN = sub.length - preN;
     const outcomeYes = sub.filter(r => isYes(r.Outcome_Reported)).length;
     const outcomePct = Math.round(outcomeYes/sub.length*1000)/10;
-    const growth = preN > 0 ? Math.round(postN/preN*10)/10 + '×' : (postN > 0 ? '∞×' : '-');
+    const growth = preN > 0 ? Math.round(postN/preN*10)/10 + '×' : (postN > 0 ? '∞×' : '—');
     const tableRow = document.querySelectorAll('.data-table tbody tr')[i];
     if (tableRow) {
       const cells = tableRow.querySelectorAll('td');
@@ -1214,8 +1111,8 @@ function buildEvTable(highlightId) {
   const tbl = document.getElementById('ev-scoring-table');
   tbl.innerHTML = `<thead><tr>
     <th style="width:30%">Topic</th>
-    <th style="width:18%">D1 - Outcome %</th>
-    <th style="width:18%">D2 - Design %</th>
+    <th style="width:18%">D1 — Outcome %</th>
+    <th style="width:18%">D2 — Design %</th>
     <th style="width:8%">D3</th>
     <th style="width:10%">Composite</th>
     <th style="width:8%">Tier</th>
@@ -1226,7 +1123,7 @@ function buildEvTable(highlightId) {
     const borderColor = t.tier==="LOW" ? "#dc2626" : "#ca8a04";
     const invCell = t.inv
       ? `<span class="inv-badge ${t.inv==="1"?"inv-1":"inv-r"}">${t.inv==="1"?"↕ Inv":"↕ Rev"}</span>`
-      : `<span style="color:#ddd">-</span>`;
+      : `<span style="color:#ddd">—</span>`;
     const isSel = highlightId != null && t.id === highlightId;
     const rowDim = highlightId != null && !isSel ? 'opacity:.4;' : '';
     const rowHighlight = isSel ? 'background:#f5e6e6;' : '';
@@ -1396,18 +1293,6 @@ function renderMatrixChart(){
     }
   });
 }
-
-// ─── SPLASH SCREEN ────────────────────────────────────────────────────────────
-(function initSplash(){
-  const rows = TOPIC_ORDER.map(id => {
-    const t = EV_TOPICS.find(e => e.id === id);
-    return `<tr><td style="padding:4px 8px 4px 0;color:var(--mid);">${id}</td><td style="padding:4px 8px;">${t.label}</td><td style="padding:4px 0;">${t.n}</td></tr>`;
-  }).join('');
-  document.getElementById('splash-topic-rows').innerHTML = rows;
-  document.getElementById('splash-continue').onclick = () => {
-    document.getElementById('splash-overlay').style.display = 'none';
-  };
-})();
 
 // ─── Initial render of topic-filterable elements ─────────────────────────────
 renderOverviewLive();

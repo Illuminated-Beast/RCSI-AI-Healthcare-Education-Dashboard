@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>How This Dashboard Works - Research Pipeline</title>
+<title>How This Dashboard Works — Research Pipeline</title>
 <style>
   :root {
     --red: #CC0000;
@@ -34,7 +34,7 @@
   header .eyebrow { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; opacity: 0.8; margin-bottom: 6px; }
   header h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.3px; line-height: 1.25; }
   header .meta { font-size: 12px; opacity: 0.75; margin-top: 8px; display: flex; gap: 24px; flex-wrap: wrap; }
-  header .meta span::before { content: "- "; }
+  header .meta span::before { content: "— "; }
 
   /* TABS */
   nav.tabs { background: white; border-bottom: 2px solid var(--rule); padding: 0 40px; display: flex; gap: 0; overflow-x: auto; }
@@ -194,7 +194,7 @@
 <div class="section-title">What the Evidence Scores Mean</div>
 <p style="font-size:14px;color:#475569;max-width:760px;">
 Every topic in this dashboard is scored on three dimensions, verified directly from
-<code>Stage6_Evidence_Scoring.xlsx</code>. These are not estimates - they are the exact
+<code>Stage6_Evidence_Scoring.xlsx</code>. These are not estimates — they are the exact
 scoring rules the pipeline applied.
 </p>
 <table style="width:100%;max-width:820px;border-collapse:collapse;font-size:13px;margin:14px 0;">
@@ -202,17 +202,17 @@ scoring rules the pipeline applied.
     <th style="text-align:left;padding:8px 10px;border:1px solid #ddd;">Weight</th>
     <th style="text-align:left;padding:8px 10px;border:1px solid #ddd;">What it measures</th>
     <th style="text-align:left;padding:8px 10px;border:1px solid #ddd;">Thresholds</th></tr>
-  <tr><td style="padding:8px 10px;border:1px solid #ddd;"><strong>D1 - Outcome Reporting</strong></td>
+  <tr><td style="padding:8px 10px;border:1px solid #ddd;"><strong>D1 — Outcome Reporting</strong></td>
     <td style="padding:8px 10px;border:1px solid #ddd;">50%</td>
     <td style="padding:8px 10px;border:1px solid #ddd;">% of papers in the topic reporting a measurable outcome (Stage 4 regex flag)</td>
     <td style="padding:8px 10px;border:1px solid #ddd;">HIGH ≥80% · MEDIUM 60–79% · LOW &lt;60%</td></tr>
-  <tr><td style="padding:8px 10px;border:1px solid #ddd;"><strong>D2 - Design Quality</strong></td>
+  <tr><td style="padding:8px 10px;border:1px solid #ddd;"><strong>D2 — Design Quality</strong></td>
     <td style="padding:8px 10px;border:1px solid #ddd;">30%</td>
-    <td style="padding:8px 10px;border:1px solid #ddd;">% using rigorous designs - RCT, systematic review, benchmarking, cohort (Stage 5)</td>
+    <td style="padding:8px 10px;border:1px solid #ddd;">% using rigorous designs — RCT, systematic review, benchmarking, cohort (Stage 5)</td>
     <td style="padding:8px 10px;border:1px solid #ddd;">HIGH ≥20% · MEDIUM 10–19% · LOW &lt;10%</td></tr>
-  <tr><td style="padding:8px 10px;border:1px solid #ddd;"><strong>D3 - Vocabulary Maturity</strong></td>
+  <tr><td style="padding:8px 10px;border:1px solid #ddd;"><strong>D3 — Vocabulary Maturity</strong></td>
     <td style="padding:8px 10px;border:1px solid #ddd;">20%</td>
-    <td style="padding:8px 10px;border:1px solid #ddd;">Ratio of evaluative to exploratory keywords (15 keywords/topic - supplementary signal)</td>
+    <td style="padding:8px 10px;border:1px solid #ddd;">Ratio of evaluative to exploratory keywords (15 keywords/topic — supplementary signal)</td>
     <td style="padding:8px 10px;border:1px solid #ddd;">HIGH ≥0.5 · MEDIUM 0.2–0.49 or no signal · LOW &lt;0.2</td></tr>
 </table>
 <p style="font-family:monospace;font-size:12.5px;background:#f8fafc;border-radius:4px;padding:10px 14px;margin:8px 0;">
@@ -220,19 +220,19 @@ Composite = D1×0.5 + D2×0.3 + D3×0.2 &nbsp;→&nbsp; HIGH ≥2.5 · MEDIUM 1.
 </p>
 <p style="font-size:13px;color:#475569;max-width:760px;">
 <strong>Known limitation, stated explicitly in the source rubric:</strong> AI Benchmarking &amp; Exam
-Performance scores HIGH on D1 (94.0%) but LOW on D2 (7.8%) - these papers report quantitative
+Performance scores HIGH on D1 (94.0%) but LOW on D2 (7.8%) — these papers report quantitative
 accuracy results (caught by D1) but rarely use formal design terms like "benchmark" (D2). Its
 MEDIUM composite (2.4) reflects this measurement tension, not a true evidence-quality deficit.
-Also note: D3 is a real, measured signal for only 2 of the 6 topics - the other 4 have zero
+Also note: D3 is a real, measured signal for only 2 of the 6 topics — the other 4 have zero
 evaluative/exploratory keyword hits and receive the "no signal → MEDIUM" default, not an actual
 vocabulary measurement.
 </p>
 
-<div class="section-title" style="margin-top:28px;">The Six Locked Topics - and Only These Six</div>
+<div class="section-title" style="margin-top:28px;">The Six Locked Topics — and Only These Six</div>
 <p style="font-size:14px;color:#475569;max-width:760px;">
 Every paper in this corpus belongs to exactly one of the following six categories, produced once
 by a BERTopic model (sentence-transformer embeddings + KMeans) and then frozen. No other topic
-label is valid anywhere in this system - uploading a file with a seventh label, a renamed label,
+label is valid anywhere in this system — uploading a file with a seventh label, a renamed label,
 or a misspelled label is rejected outright, not guessed at or silently reassigned.
 </p>
 <table style="width:100%;max-width:760px;border-collapse:collapse;font-size:13px;margin:14px 0;">
@@ -258,13 +258,13 @@ stays focused on findings rather than methodology.
 <p style="font-size:14px;color:#475569;max-width:760px;">
 All charts and tables are aggregate statistics computed from a locked, six-topic structure derived
 from BERTopic clustering of the full corpus. The evidence scores (D1/D2/D3, composite, tier) were
-verified once against that locked structure and are not recomputed on the fly - they are fixed
+verified once against that locked structure and are not recomputed on the fly — they are fixed
 reference values so that repeated viewings of the dashboard always show the same, already-verified
 figures. No paper-level data (titles, authors, links) is included in or accessible from this
 dashboard.
 </p>
 
-<div class="section-title" style="margin-top:28px;">Research Pipeline - Stages 0 to 6 (complete)</div>
+<div class="section-title" style="margin-top:28px;">Research Pipeline — Stages 0 to 7 (complete)</div>
 
 <div class="method-steps-wrap">
   <div class="method-steps">
@@ -303,6 +303,11 @@ dashboard.
       <h4>Evidence Scoring</h4>
       <p>D1 (outcome reporting), D2 (rigorous design), D3 (vocabulary maturity) computed per topic; composite = D1&times;0.5 + D2&times;0.3 + D3&times;0.2. Verified once, then locked as the reference values this dashboard displays.</p>
     </div>
+    <div class="method-step">
+      <div class="step-num">STAGE 7</div>
+      <h4>Synthesis</h4>
+      <p>Cross-cutting synthesis of findings, headline gaps, and recommendations, feeding the dissertation Discussion section.</p>
+    </div>
   </div>
 </div>
 
@@ -335,7 +340,7 @@ dashboard.
 
 <p style="font-size:12px;color:#94a3b8;margin-top:30px;">
 RCSI MSc TAPM &middot; Sumedh Kadam 25100532 &middot; Supervisor: Dr. Ali Hasnain &middot;
-Pipeline Stages 0&ndash;6 complete &middot; July 2026
+Pipeline Stages 0&ndash;7 complete &middot; July 2026
 </p>
 
 </div>
