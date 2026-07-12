@@ -1,0 +1,965 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI in Healthcare Education - Research Dashboard</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  :root {
+    --red: #CC0000;
+    --red-light: #f5e6e6;
+    --red-dark: #990000;
+    --ink: #1a1a1a;
+    --mid: #555;
+    --rule: #ddd;
+    --bg: #f8f8f7;
+    --card: #ffffff;
+    --accent1: #2563eb;
+    --accent2: #059669;
+    --accent3: #d97706;
+    --accent4: #7c3aed;
+    --accent5: #0891b2;
+    --accent6: #dc2626;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--ink); line-height: 1.5; }
+
+  header {
+    background: var(--red);
+    color: white;
+    padding: 28px 40px 22px;
+    border-bottom: 4px solid var(--red-dark);
+  }
+  header .eyebrow { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; opacity: 0.8; margin-bottom: 6px; }
+  header h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.3px; line-height: 1.25; }
+  header .meta { font-size: 12px; opacity: 0.75; margin-top: 8px; display: flex; gap: 24px; flex-wrap: wrap; }
+  header .meta span::before { content: "- "; }
+
+  nav.tabs { background: white; border-bottom: 2px solid var(--rule); padding: 0 40px; display: flex; gap: 0; overflow-x: auto; }
+  nav.tabs button {
+    border: none; background: none; cursor: pointer;
+    padding: 14px 20px; font-size: 13px; font-weight: 500; color: var(--mid);
+    border-bottom: 3px solid transparent; margin-bottom: -2px; white-space: nowrap;
+    transition: color .15s, border-color .15s;
+  }
+  nav.tabs button.active { color: var(--red); border-bottom-color: var(--red); font-weight: 600; }
+  nav.tabs button:hover:not(.active) { color: var(--ink); }
+
+  .panel { display: none; padding: 32px 40px 48px; max-width: 1280px; margin: 0 auto; }
+  .panel.active { display: block; }
+
+  .section-title { font-size: 13px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--red); margin-bottom: 20px; padding-bottom: 8px; border-bottom: 1px solid var(--rule); }
+
+  .kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 16px; margin-bottom: 36px; }
+  .kpi { background: var(--card); border: 1px solid var(--rule); border-radius: 6px; padding: 20px 20px 16px; position: relative; overflow: hidden; }
+  .kpi::before { content: ''; position: absolute; top: 0; left: 0; width: 3px; height: 100%; background: var(--accent); }
+  .kpi .num { font-size: 34px; font-weight: 800; line-height: 1; color: var(--ink); }
+  .kpi .label { font-size: 12px; color: var(--mid); margin-top: 6px; line-height: 1.4; }
+  .kpi .sub { font-size: 11px; color: var(--mid); margin-top: 4px; opacity: 0.7; }
+
+  .chart-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 28px; }
+  .chart-grid.single { grid-template-columns: 1fr; }
+  .chart-grid.thirds { grid-template-columns: 1fr 1fr 1fr; }
+  @media(max-width:900px) { .chart-grid, .chart-grid.thirds { grid-template-columns: 1fr; } }
+
+  .chart-box { background: var(--card); border: 1px solid var(--rule); border-radius: 6px; padding: 20px; }
+  .chart-box h3 { font-size: 13px; font-weight: 600; color: var(--ink); margin-bottom: 4px; }
+  .chart-box .chart-sub { font-size: 11px; color: var(--mid); margin-bottom: 16px; }
+  .chart-box canvas { max-height: 280px; }
+
+  .findings-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-bottom: 28px; }
+  .finding { background: var(--card); border: 1px solid var(--rule); border-radius: 6px; padding: 20px; }
+  .finding .tag { display: inline-block; font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; padding: 3px 8px; border-radius: 3px; margin-bottom: 10px; }
+  .finding .tag.red { background: var(--red-light); color: var(--red); }
+  .finding .tag.blue { background: #eff6ff; color: var(--accent1); }
+  .finding .tag.green { background: #ecfdf5; color: var(--accent2); }
+  .finding .tag.amber { background: #fffbeb; color: var(--accent3); }
+  .finding .tag.purple { background: #f5f3ff; color: var(--accent4); }
+  .finding h4 { font-size: 14px; font-weight: 600; margin-bottom: 8px; color: var(--ink); }
+  .finding p { font-size: 13px; color: var(--mid); line-height: 1.55; }
+  .finding .stat { font-size: 22px; font-weight: 800; color: var(--red); margin: 8px 0 4px; }
+
+  .data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .data-table th { text-align: left; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; color: var(--mid); padding: 10px 14px; border-bottom: 2px solid var(--rule); background: #fafafa; }
+  .data-table td { padding: 10px 14px; border-bottom: 1px solid var(--rule); color: var(--ink); }
+  .data-table tr:hover td { background: #fafafa; }
+  .data-table .bar-cell { display: flex; align-items: center; gap: 8px; }
+  .mini-bar { height: 8px; border-radius: 4px; background: var(--red); min-width: 4px; }
+  .pct-label { font-size: 12px; color: var(--mid); white-space: nowrap; }
+
+  .badge { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 12px; }
+  .badge.high { background: #dcfce7; color: #166534; }
+  .badge.mid { background: #fef9c3; color: #854d0e; }
+  .badge.low { background: #fee2e2; color: #991b1b; }
+
+  .inflection-callout {
+    background: linear-gradient(135deg, var(--red) 0%, var(--red-dark) 100%);
+    color: white; border-radius: 6px; padding: 24px 28px; margin-bottom: 28px;
+    display: flex; align-items: flex-start; gap: 20px;
+  }
+  .inflection-callout .big-num { font-size: 52px; font-weight: 900; line-height: 1; opacity: 0.95; }
+  .inflection-callout .desc h3 { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
+  .inflection-callout .desc p { font-size: 13px; opacity: 0.88; line-height: 1.55; }
+
+  .topic-chip { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 4px; vertical-align: middle; }
+
+  .method-steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0; }
+  .method-step { padding: 20px; border-right: 1px solid var(--rule); border-bottom: 1px solid var(--rule); }
+  .method-step:nth-last-child(-n+3) { border-bottom: none; }
+  .method-step .step-num { font-size: 11px; font-weight: 700; color: var(--red); letter-spacing: 1px; margin-bottom: 8px; }
+  .method-step h4 { font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+  .method-step p { font-size: 12px; color: var(--mid); line-height: 1.5; }
+  .method-steps-wrap { background: var(--card); border: 1px solid var(--rule); border-radius: 6px; overflow: hidden; margin-bottom: 28px; }
+
+  .gap-row { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+  .gap-label { font-size: 12px; width: 230px; flex-shrink: 0; color: var(--ink); }
+  .gap-track { flex: 1; height: 20px; background: var(--rule); border-radius: 4px; overflow: hidden; }
+  .gap-fill { height: 100%; border-radius: 4px; display: flex; align-items: center; justify-content: flex-end; padding-right: 6px; }
+  .gap-fill span { font-size: 10px; font-weight: 700; color: white; }
+  .gap-pct-label { font-size: 12px; color: var(--mid); width: 40px; text-align: right; flex-shrink: 0; }
+
+  .caveat { font-size: 11px; color: var(--accent3); background: #fffbeb; border: 1px solid #fde68a; border-radius: 4px; padding: 8px 12px; margin-bottom: 16px; }
+
+  footer { text-align: center; padding: 20px; font-size: 11px; color: #999; border-top: 1px solid var(--rule); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">RCSI MSc TAPM - Research Project 25100532</div>
+  <h1>Use of AI in Formal Healthcare Education<br>Scoping Review - Corpus, Topic Model &amp; Evidence Analysis</h1>
+  <div class="meta">
+    <span>Sumedh Kadam</span>
+    <span>Supervisor: Dr. Ali Hasnain</span>
+    <span>Corpus: 507 papers · 2003–2025</span>
+    <span>Sources: PubMed · Semantic Scholar · Scopus</span>
+  </div>
+</header>
+
+<nav class="tabs">
+  <button class="active" onclick="showTab('overview')">Overview & Key Numbers</button>
+  <button onclick="showTab('trends')">Publication Trends</button>
+  <button onclick="showTab('topics')">NLP Topic Modelling</button>
+  <button onclick="showTab('evidence')">Evidence Gap</button>
+  <button onclick="showTab('keywords')">AI Terminology</button>
+  <button onclick="showTab('findings')">Integrated Findings</button>
+  <button onclick="showTab('method')">Pipeline & Methods</button>
+</nav>
+
+<!-- ===== TAB 1: OVERVIEW ===== -->
+<div id="tab-overview" class="panel active">
+  <div class="section-title">Corpus at a Glance</div>
+
+  <div class="inflection-callout">
+    <div class="big-num">88.6%</div>
+    <div class="desc">
+      <h3>The Nov 2022 generative-AI inflection point is the structural story of this corpus</h3>
+      <p>449 of 507 included papers were published after November 2022, when general-purpose generative AI chat tools reached mainstream use. The field did not gradually adopt AI - it accelerated almost entirely within a 2-year window (2023–2025). This is not a decade-long trend; it is a step-change, and the analysis is structured around it.</p>
+    </div>
+  </div>
+
+  <div class="kpi-row">
+    <div class="kpi" style="--accent: var(--red)">
+      <div class="num">507</div>
+      <div class="label">Included papers after screening</div>
+      <div class="sub">PubMed 438 · Semantic Scholar 42 · Scopus 27</div>
+    </div>
+    <div class="kpi" style="--accent: var(--accent1)">
+      <div class="num">449</div>
+      <div class="label">Post-inflection publications (2023+)</div>
+      <div class="sub">88.6% of the corpus</div>
+    </div>
+    <div class="kpi" style="--accent: var(--accent2)">
+      <div class="num">3</div>
+      <div class="label">Classification categories</div>
+      <div class="sub">General AI · Exam Perf. · Advocation</div>
+    </div>
+    <div class="kpi" style="--accent: var(--accent3)">
+      <div class="num">6</div>
+      <div class="label">Semantic topic clusters (BERTopic)</div>
+      <div class="sub">KMeans backend · locked model</div>
+    </div>
+    <div class="kpi" style="--accent: var(--accent4)">
+      <div class="num">67.5%</div>
+      <div class="label">Papers reporting quantitative outcomes</div>
+      <div class="sub">342 / 507 via regex flag</div>
+    </div>
+    <div class="kpi" style="--accent: var(--accent5)">
+      <div class="num">23yr</div>
+      <div class="label">Publication span</div>
+      <div class="sub">2003 – 2025 (active growth from 2022)</div>
+    </div>
+  </div>
+
+  <div class="chart-grid">
+    <div class="chart-box">
+      <h3>Classification Distribution</h3>
+      <div class="chart-sub">3 manually screened categories - 507 papers total</div>
+      <canvas id="classDonut"></canvas>
+    </div>
+    <div class="chart-box">
+      <h3>Pre vs Post Inflection Point (Nov 2022)</h3>
+      <div class="chart-sub">Publication volume split by category</div>
+      <canvas id="prePostBar"></canvas>
+    </div>
+  </div>
+
+  <div class="chart-grid">
+    <div class="chart-box">
+      <h3>Annual Publication Volume (2014–2025)</h3>
+      <div class="chart-sub">Year-on-year growth showing the 2022 inflection</div>
+      <canvas id="pubTrendOverview"></canvas>
+    </div>
+    <div class="chart-box">
+      <h3>Outcome Reporting by Category</h3>
+      <div class="chart-sub">% of papers reporting a quantifiable outcome</div>
+      <canvas id="outcomeBar"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- ===== TAB 2: TRENDS ===== -->
+<div id="tab-trends" class="panel">
+  <div class="section-title">Publication Trends &amp; Temporal Analysis</div>
+  <div class="chart-grid single">
+    <div class="chart-box">
+      <h3>Full Publication Timeline (2003–2025) - All 3 Categories</h3>
+      <div class="chart-sub">Stacked by classification. Near-zero activity until 2022, then explosive growth</div>
+      <canvas id="stackedTrend" style="max-height:320px"></canvas>
+    </div>
+  </div>
+
+  <div class="chart-grid">
+    <div class="chart-box">
+      <h3>Year-on-Year Growth Rate</h3>
+      <div class="chart-sub">% increase from previous year</div>
+      <canvas id="growthRate"></canvas>
+    </div>
+    <div class="chart-box">
+      <h3>Cumulative Publications Over Time</h3>
+      <div class="chart-sub">Cumulative count showing when the field reached critical mass</div>
+      <canvas id="cumulative"></canvas>
+    </div>
+  </div>
+
+  <div class="chart-grid">
+    <div class="chart-box">
+      <h3>Top 10 Publishing Journals</h3>
+      <div class="chart-sub">By paper count across 506 combined-results records</div>
+      <canvas id="journalBar"></canvas>
+    </div>
+    <div class="chart-box">
+      <h3>Pre/Post Inflection Split by Category</h3>
+      <div class="chart-sub">How each category accelerated after November 2022</div>
+      <canvas id="prePostCategory"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- ===== TAB 3: NLP TOPICS ===== -->
+<div id="tab-topics" class="panel">
+  <div class="section-title">NLP Topic Modelling - BERTopic (KMeans, 6 Clusters, Locked Model)</div>
+
+  <div class="chart-grid">
+    <div class="chart-box">
+      <h3>Topic Size Distribution</h3>
+      <div class="chart-sub">Number of papers assigned to each locked BERTopic cluster</div>
+      <canvas id="topicSize"></canvas>
+    </div>
+    <div class="chart-box">
+      <h3>Pre vs Post-Inflection by Topic</h3>
+      <div class="chart-sub">Which topics exploded post-2022 vs which existed before</div>
+      <canvas id="topicPrePost"></canvas>
+    </div>
+  </div>
+
+  <div class="chart-grid single">
+    <div class="chart-box">
+      <h3>Topic Growth Over Time (2019–2025)</h3>
+      <div class="chart-sub">Annual paper count per topic, from the locked Paper_Topic_Assignments export</div>
+      <canvas id="topicTimeline" style="max-height:300px"></canvas>
+    </div>
+  </div>
+
+  <div class="section-title" style="margin-top:8px">Topic Profiles</div>
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Topic Label</th>
+        <th>Papers</th>
+        <th>% Corpus</th>
+        <th>Pre-Infl.</th>
+        <th>Post-Infl.</th>
+        <th>Growth</th>
+        <th>D1 Outcome %</th>
+        <th>D2 Rigor %</th>
+        <th>Tier</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>1</td>
+        <td><span class="topic-chip" style="background:#059669"></span>AI Benchmarking &amp; Exam Performance</td>
+        <td>116</td>
+        <td><div class="bar-cell"><div class="mini-bar" style="width:76px"></div><span class="pct-label">22.9%</span></div></td>
+        <td>4</td>
+        <td>112</td>
+        <td><span class="badge high">28×</span></td>
+        <td>94.0% <span class="badge high">HIGH</span></td>
+        <td>7.8% <span class="badge low">LOW</span></td>
+        <td><span class="badge mid">MEDIUM</span></td>
+      </tr>
+      <tr>
+        <td>0</td>
+        <td><span class="topic-chip" style="background:#2563eb"></span>Generative AI Adoption &amp; Student Perceptions</td>
+        <td>111</td>
+        <td><div class="bar-cell"><div class="mini-bar" style="width:73px"></div><span class="pct-label">21.9%</span></div></td>
+        <td>1</td>
+        <td>110</td>
+        <td><span class="badge high">110×</span></td>
+        <td>64.9% <span class="badge mid">MED</span></td>
+        <td>13.5% <span class="badge mid">MED</span></td>
+        <td><span class="badge mid">MEDIUM</span></td>
+      </tr>
+      <tr>
+        <td>2</td>
+        <td><span class="topic-chip" style="background:#dc2626"></span>AI in Medical Imaging &amp; Surgical Education</td>
+        <td>97</td>
+        <td><div class="bar-cell"><div class="mini-bar" style="width:64px"></div><span class="pct-label">19.1%</span></div></td>
+        <td>23</td>
+        <td>74</td>
+        <td><span class="badge mid">3.2×</span></td>
+        <td>50.5% <span class="badge low">LOW</span></td>
+        <td>29.9% <span class="badge high">HIGH</span></td>
+        <td><span class="badge mid">MEDIUM</span></td>
+      </tr>
+      <tr>
+        <td>4</td>
+        <td><span class="topic-chip" style="background:#7c3aed"></span>Simulation, Virtual Reality &amp; Clinical Training</td>
+        <td>96</td>
+        <td><div class="bar-cell"><div class="mini-bar" style="width:63px"></div><span class="pct-label">18.9%</span></div></td>
+        <td>13</td>
+        <td>83</td>
+        <td><span class="badge mid">6.4×</span></td>
+        <td>50.0% <span class="badge low">LOW</span></td>
+        <td>15.6% <span class="badge mid">MED</span></td>
+        <td><span class="badge low">LOW</span></td>
+      </tr>
+      <tr>
+        <td>5</td>
+        <td><span class="topic-chip" style="background:#0891b2"></span>Perceptions, Readiness &amp; Knowledge-Attitude Studies</td>
+        <td>56</td>
+        <td><div class="bar-cell"><div class="mini-bar" style="width:37px"></div><span class="pct-label">11.0%</span></div></td>
+        <td>15</td>
+        <td>41</td>
+        <td><span class="badge mid">2.7×</span></td>
+        <td>82.1% <span class="badge high">HIGH</span></td>
+        <td>3.6% <span class="badge low">LOW</span></td>
+        <td><span class="badge mid">MEDIUM</span></td>
+      </tr>
+      <tr>
+        <td>3</td>
+        <td><span class="topic-chip" style="background:#d97706"></span>Pharmacy Education &amp; Academic Integrity</td>
+        <td>31</td>
+        <td><div class="bar-cell"><div class="mini-bar" style="width:20px"></div><span class="pct-label">6.1%</span></div></td>
+        <td>2</td>
+        <td>29</td>
+        <td><span class="badge mid">14.5×</span></td>
+        <td>58.1% <span class="badge low">LOW</span></td>
+        <td>16.1% <span class="badge mid">MED</span></td>
+        <td><span class="badge low">LOW</span></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ===== TAB 4: EVIDENCE GAP ===== -->
+<div id="tab-evidence" class="panel">
+  <div class="section-title">Evidence Gap Analysis - D1 Outcome Reporting vs D2 Design Rigor</div>
+
+  <div class="caveat" style="background:#ecfdf5;border-color:#a7f3d0;color:#065f46">Verified, topic-independent: Classification × Period (χ²=7.538, df=2, p=0.023, Cramér's V=0.122, small effect, significant) and Classification × Outcome-Reporting (χ²=0.822, df=2, p=0.663, V=0.040, negligible, not significant). Both are stable across every re-run since they don't depend on the topic model.</div>
+  <div class="caveat">Topic × Period (V=0.308) and Topic × Classification (V=0.354) are disputed across your own past sessions - one claims these were run against the locked 116/111/97/96/56/31 structure, another says they weren't. Not included in this dashboard. Re-run Stage 3 fresh against Dashboard_Input_Template.xlsx (confirmed the correct locked per-paper file) to settle this before citing either value.</div>
+
+  <div class="findings-grid" style="margin-bottom:28px">
+    <div class="finding">
+      <span class="tag red">D1/D2 Inversion - Headline Finding</span>
+      <h4>AI Benchmarking &amp; Exam Performance</h4>
+      <div class="stat">94.0% D1 / 7.8% D2</div>
+      <p>Highest outcome-reporting rate in the corpus, but one of the lowest rigorous-design rates. The field measures accuracy on exams constantly, but rarely with a controlled or randomised design. Replicated across 3 BERTopic re-fits.</p>
+    </div>
+    <div class="finding">
+      <span class="tag amber">Reverse Inversion</span>
+      <h4>AI in Medical Imaging &amp; Surgical Education</h4>
+      <div class="stat">29.9% D2 / 50.5% D1</div>
+      <p>Best design quality in the corpus (systematic reviews, surgical cohorts) but one of the lowest outcome-reporting rates. Rigorous studies that don't complete the evidence loop.</p>
+    </div>
+    <div class="finding">
+      <span class="tag green">Lowest Design Rigor in Corpus</span>
+      <h4>Perceptions, Readiness &amp; Knowledge-Attitude Studies</h4>
+      <div class="stat">82.1% D1 / 3.6% D2</div>
+      <p>Knowledge-attitude surveys report outcomes reliably (82.1%) but almost never use a rigorous design (3.6%, the lowest D2 in the entire corpus).</p>
+    </div>
+  </div>
+
+  <div class="chart-box" style="margin-bottom:28px;padding:24px 28px">
+    <h3>D1 (Outcome Reporting) vs D2 (Rigorous Design) by Topic</h3>
+    <div class="chart-sub" style="margin-bottom:20px">Locked Stage 6 evidence scores - the gap between the two bars is the inversion</div>
+    <canvas id="d1d2Chart" style="max-height:300px"></canvas>
+  </div>
+
+  <div class="chart-box" style="margin-bottom:28px;padding:24px 28px">
+    <h3>Outcome Reporting Rate by Topic (D1)</h3>
+    <div class="chart-sub" style="margin-bottom:20px">% of papers per topic reporting a quantifiable outcome</div>
+    <div class="gap-row">
+      <div class="gap-label">AI Benchmarking &amp; Exam Perf.</div>
+      <div class="gap-track"><div class="gap-fill" style="width:94%;background:#059669"><span>109/116</span></div></div>
+      <div class="gap-pct-label">94.0%</div>
+    </div>
+    <div class="gap-row">
+      <div class="gap-label">Perceptions, Readiness &amp; KA</div>
+      <div class="gap-track"><div class="gap-fill" style="width:82.1%;background:#0891b2"><span>46/56</span></div></div>
+      <div class="gap-pct-label">82.1%</div>
+    </div>
+    <div class="gap-row">
+      <div class="gap-label">Pharmacy Education &amp; Integrity</div>
+      <div class="gap-track"><div class="gap-fill" style="width:58.1%;background:#d97706"><span>18/31</span></div></div>
+      <div class="gap-pct-label">58.1%</div>
+    </div>
+    <div class="gap-row">
+      <div class="gap-label">Gen. AI Adoption &amp; Perceptions</div>
+      <div class="gap-track"><div class="gap-fill" style="width:64.9%;background:#2563eb"><span>72/111</span></div></div>
+      <div class="gap-pct-label">64.9%</div>
+    </div>
+    <div class="gap-row">
+      <div class="gap-label">Imaging &amp; Surgical Education</div>
+      <div class="gap-track"><div class="gap-fill" style="width:50.5%;background:#dc2626"><span>49/97</span></div></div>
+      <div class="gap-pct-label">50.5%</div>
+    </div>
+    <div class="gap-row">
+      <div class="gap-label">Simulation, VR &amp; Clinical Training</div>
+      <div class="gap-track"><div class="gap-fill" style="width:50%;background:#7c3aed"><span>48/96</span></div></div>
+      <div class="gap-pct-label">50.0%</div>
+    </div>
+  </div>
+
+  <div class="chart-grid">
+    <div class="chart-box">
+      <h3>Outcome Reporting: Yes vs No by Topic</h3>
+      <div class="chart-sub">Raw counts, locked topic structure</div>
+      <canvas id="evidenceStacked"></canvas>
+    </div>
+    <div class="chart-box">
+      <h3>Overall Outcome Reporting vs Missing</h3>
+      <div class="chart-sub">Corpus-wide: 342 with outcomes, 165 without</div>
+      <canvas id="evidenceDonut"></canvas>
+    </div>
+  </div>
+
+  <div class="section-title" style="margin-top:8px">Gap Analysis - Study Design &amp; Discipline Coverage</div>
+  <div class="caveat">RCT count resolved: a direct re-run of the Stage 5 regex classifier gives strict=6 (1.2%) and broad=12 (2.4%). The "13" figure in earlier extraction code/JSON was a stale early-run number and should not be used. Present as the range 6–12, not 13.</div>
+  <div class="chart-grid">
+    <div class="chart-box">
+      <h3>Study Design Distribution</h3>
+      <div class="chart-sub">Stage 5 regex classifier, direct re-run, 11 categories, 507 papers - priority-ordered pattern match</div>
+      <canvas id="studyDesignChart"></canvas>
+    </div>
+    <div class="chart-box">
+      <h3>Discipline / Specialty Coverage</h3>
+      <div class="chart-sub">Stage 5 regex classifier, 507 papers. Dominant category is a classifier limitation, not a substantive finding - see note below</div>
+      <canvas id="disciplineChart"></canvas>
+    </div>
+  </div>
+  <div class="caveat">45.4% of papers (230/507) fall into "Unclassified/Descriptive" because the regex classifier only catches design terminology explicitly stated in title/abstract. This is itself a reportable transparency finding - it quantifies how much of the corpus doesn't name its own methodology - not just classifier noise.</div>
+  <div class="caveat">62.9% of papers fall into "Cross-disciplinary / Not specified" because the classifier is keyword-based: it flags this bucket when an abstract doesn't contain a discipline keyword by name, not because the paper is genuinely discipline-agnostic. State this limitation explicitly wherever this chart is used.</div>
+</div>
+
+<!-- ===== TAB 5: AI TERMINOLOGY ===== -->
+<div id="tab-keywords" class="panel">
+  <div class="section-title">AI Terminology in the Corpus</div>
+  <div class="caveat">Chart labels are kept generic per supervisor instruction - no specific AI tool is named in this dissertation, only general references to categories of AI terminology.</div>
+
+  <div class="chart-grid">
+    <div class="chart-box">
+      <h3>Terminology Specificity</h3>
+      <div class="chart-sub">Generic AI/ML language vs any generative-AI/LLM/chatbot-specific terminology (506 combined-results papers with a keyword tag)</div>
+      <canvas id="termSpecificity"></canvas>
+    </div>
+    <div class="chart-box">
+      <h3>Within Specific Terminology: Named Product vs Generic Language</h3>
+      <div class="chart-sub">Of the 279 papers using generative-AI/LLM/chatbot-specific terms</div>
+      <canvas id="namedVsGeneric"></canvas>
+    </div>
+  </div>
+
+  <div class="chart-grid">
+    <div class="chart-box">
+      <h3>Top Publishing Journals</h3>
+      <div class="chart-sub">Top 10 journals by paper count</div>
+      <canvas id="journalBarDetail"></canvas>
+    </div>
+    <div class="chart-box">
+      <h3>Terminology Shift - Pre vs Post Inflection Point</h3>
+      <div class="chart-sub">Real counts from Matched AI Keywords field, by publication date (not estimated)</div>
+      <canvas id="vocabShift"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- ===== TAB 6: FINDINGS ===== -->
+<div id="tab-findings" class="panel">
+  <div class="section-title">Integrated Findings - Cross-cutting Insights</div>
+
+  <div class="findings-grid">
+    <div class="finding">
+      <span class="tag red">Finding 1</span>
+      <h4>The Field is Post-Inflection by Overwhelming Margin</h4>
+      <p>88.6% of papers were published after November 2022. This is not a decade of gradual adoption - it is a 2-year sprint. Any analysis of "the last decade" is structurally dominated by 2023–2025.</p>
+    </div>
+    <div class="finding">
+      <span class="tag blue">Finding 2</span>
+      <h4>Headline D1/D2 Inversion - Benchmarking &amp; Exam Performance</h4>
+      <p>94.0% outcome reporting (highest in corpus) against only 7.8% rigorous design (second-lowest). The field measures exam accuracy constantly but almost never with a controlled or randomised design. Replicated across 3 BERTopic re-fits.</p>
+    </div>
+    <div class="finding">
+      <span class="tag green">Finding 3</span>
+      <h4>Reverse Inversion - Imaging &amp; Surgical Education</h4>
+      <p>Best design quality in the corpus (29.9% rigorous, HIGH) but only 50.5% outcome reporting (LOW). Rigorous studies exist here - they just don't report a measurable result.</p>
+    </div>
+    <div class="finding">
+      <span class="tag amber">Finding 4</span>
+      <h4>Third Inversion - Perceptions, Readiness &amp; Knowledge-Attitude</h4>
+      <p>82.1% outcome reporting but only 3.6% rigorous design - the lowest D2 in the entire corpus. Attitude surveys report a number reliably; they just don't test anything rigorously.</p>
+    </div>
+    <div class="finding">
+      <span class="tag purple">Finding 5</span>
+      <h4>Discipline Classification Has a Structural Blind Spot</h4>
+      <p>62.9% of papers (319/507) fall into "Cross-disciplinary / Not specified" under the Stage 5 keyword classifier. This reflects a keyword-matching limitation, not necessarily a genuinely undifferentiated literature - flag this as a methods caveat, not a headline result.</p>
+    </div>
+    <div class="finding">
+      <span class="tag red">Finding 6</span>
+      <h4>Nursing &amp; Allied Health are Emerging, Not Declining</h4>
+      <p>Nursing (18) and Allied Health (2) together are 3.9% of the corpus, with zero papers before 2023. Frame as an emerging niche with growth potential, not an established gap.</p>
+    </div>
+  </div>
+
+  <div class="section-title" style="margin-top: 8px">Synthesis: Volume vs Evidence Quality by Topic</div>
+  <div class="chart-box">
+    <h3>Evidence-Volume Matrix by Topic</h3>
+    <div class="chart-sub">Volume (papers) vs outcome reporting rate (D1 %). Bubble size scales with topic size.</div>
+    <canvas id="matrixChart" style="max-height:340px"></canvas>
+  </div>
+</div>
+
+<!-- ===== TAB 7: METHODS ===== -->
+<div id="tab-method" class="panel">
+  <div class="section-title">Research Pipeline - Stages 0 to 7</div>
+
+  <div class="method-steps-wrap">
+    <div class="method-steps">
+      <div class="method-step">
+        <div class="step-num">STAGE 0</div>
+        <h4>Data Preparation</h4>
+        <p>Filtered initial records to 3 target categories, deduplicated to 507 screening and 506 combined-results records.</p>
+      </div>
+      <div class="method-step">
+        <div class="step-num">STAGE 1</div>
+        <h4>Corpus Construction</h4>
+        <p>Normalised classification variants to 3 canonical categories. Extracted years from mixed date formats. Added outcome-reported regex flag.</p>
+      </div>
+      <div class="method-step">
+        <div class="step-num">STAGE 2</div>
+        <h4>BERTopic NLP Modelling (Locked)</h4>
+        <p>BERTopic with KMeans backend, 507 documents, 6 topics. Model saved to disk - never re-run. Topic assignment by exact label match only.</p>
+      </div>
+      <div class="method-step">
+        <div class="step-num">STAGE 3</div>
+        <h4>Statistical Analysis</h4>
+        <p>Chi-square tests with Cramér's V effect sizes. <strong>Status: requires local re-verification against the locked Stage 2 export before these are treated as final.</strong></p>
+      </div>
+      <div class="method-step">
+        <div class="step-num">STAGE 5</div>
+        <h4>Gap Identification</h4>
+        <p>Regex-based study-design and discipline classification. Keyword-based - see caveats on the Evidence Gap tab.</p>
+      </div>
+      <div class="method-step">
+        <div class="step-num">STAGE 6</div>
+        <h4>Evidence Scoring</h4>
+        <p>D1 (outcome reporting) × 0.5 + D2 (rigorous design) × 0.3 + D3 (vocabulary maturity) × 0.2. Locked constants, never recomputed from raw data.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-title">Tool Selection Rationale</div>
+  <table class="data-table">
+    <thead>
+      <tr><th>Tool</th><th>Stage</th><th>Published Precedent</th><th>Justification in This Study</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>BERTopic</strong></td>
+        <td>Stage 2</td>
+        <td>Grootendorst (2022), arXiv preprint - unpublished, flag to supervisor</td>
+        <td>Heterogeneous short texts require flexible topic boundaries; KMeans backend avoids the HDBSCAN outlier-bin problem on a mid-sized corpus</td>
+      </tr>
+      <tr>
+        <td><strong>scispaCy</strong></td>
+        <td>Stage 6</td>
+        <td>Allen Institute ACL 2019 - biomedical NER on clinical text</td>
+        <td>Clinical NLP adaptation with no established precedent in education research specifically</td>
+      </tr>
+      <tr>
+        <td><strong>Chi-square / Cramér's V</strong></td>
+        <td>Stage 3</td>
+        <td>Standard in systematic review category comparisons</td>
+        <td>Tests association between classification categories and topic assignments; effect size V quantifies practical significance alongside p-value</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<footer>RCSI MSc TAPM · Sumedh Kadam 25100532 · Supervisor: Dr. Ali Hasnain · Dashboard rebuilt against locked pipeline outputs · July 2026</footer>
+
+<script>
+const TOPIC_COLORS = ['#059669','#2563eb','#dc2626','#7c3aed','#0891b2','#d97706']; // order: Benchmark, GenAI-Adopt, Imaging, SimVR, Percep, Pharmacy
+const CAT_COLORS   = ['#CC0000','#2563eb','#059669'];
+const RED = '#CC0000';
+
+function showTab(name) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('nav.tabs button').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  event.currentTarget.classList.add('active');
+}
+
+Chart.defaults.font.family = "'Segoe UI', system-ui, sans-serif";
+Chart.defaults.font.size   = 12;
+Chart.defaults.color       = '#555';
+Chart.defaults.plugins.legend.labels.boxWidth = 12;
+Chart.defaults.plugins.legend.labels.padding  = 14;
+const noGrid = { grid: { color: 'rgba(0,0,0,0.05)' } };
+
+// ─── VERIFIED DATA (source: Master_3Categories_Combined.xlsx, Dashboard_Input_Template.xlsx, dashboard_data.json) ───
+const years = [2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024,2025];
+const totalsByYear = [1,0,0,1,3,6,8,15,20,90,190,169]; // + 4 pre-2014 papers (1995,2003,2004,2006), all General category
+
+const generalY  = [1,0,0,1,3,2,4,7,7,63,128,108];   // sum 324 + 4 pre-2014 = 328
+const examPerfY = [0,0,0,0,0,2,4,5,10,17,37,40];    // sum 115
+const advocY    = [0,0,0,0,0,2,0,3,3,10,25,21];     // sum 64
+
+const topicYears = [2019,2020,2021,2022,2023,2024,2025];
+const topicYearData = {
+  'Benchmarking':   [1,0,2,0,29,44,39],   // +1 pre-2019
+  'GenAIAdopt':     [0,1,0,0,20,51,39],   // +0 pre-2019
+  'Imaging':        [2,4,7,7,22,28,24],   // +3 pre-2019
+  'SimVR':          [2,1,3,3,9,37,37],    // +4 pre-2019
+  'Percep':         [1,1,3,9,8,17,16],    // +1 pre-2019
+  'Pharmacy':       [0,1,0,1,2,13,14],    // +0 pre-2019
+};
+
+// ─── CHART 1: Class Donut ───
+new Chart(document.getElementById('classDonut'), {
+  type: 'doughnut',
+  data: {
+    labels: ['General AI in Healthcare Ed.','AI and Exam Performance','Advocation for AI'],
+    datasets: [{ data: [328,115,64], backgroundColor: CAT_COLORS, borderWidth: 2, borderColor: '#fff' }]
+  },
+  options: {
+    cutout: '60%',
+    plugins: {
+      legend: { position: 'bottom' },
+      tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ${ctx.raw} papers (${((ctx.raw/507)*100).toFixed(1)}%)` } }
+    }
+  }
+});
+
+// ─── CHART 2: Pre/Post Bar (corrected - real computed split, not estimated) ───
+new Chart(document.getElementById('prePostBar'), {
+  type: 'bar',
+  data: {
+    labels: ['General AI\nin Healthcare Ed.','AI and\nExam Performance','Advocation\nfor AI','TOTAL'],
+    datasets: [
+      { label: 'Pre-Inflection (≤2022)', data: [29,21,8,58], backgroundColor: '#cbd5e1' },
+      { label: 'Post-Inflection (2023+)', data: [299,94,56,449], backgroundColor: RED }
+    ]
+  },
+  options: {
+    plugins: { legend: { position: 'bottom' } },
+    scales: { x: { stacked: true, ...noGrid }, y: { stacked: true, ...noGrid } }
+  }
+});
+
+// ─── CHART 3: Publication Trend (corrected against verified by-year totals) ───
+new Chart(document.getElementById('pubTrendOverview'), {
+  type: 'bar',
+  data: {
+    labels: years,
+    datasets: [{
+      label: 'Papers published',
+      data: totalsByYear,
+      backgroundColor: years.map(y => y >= 2023 ? RED : '#cbd5e1'),
+      borderRadius: 3
+    }]
+  },
+  options: {
+    plugins: { legend: { display: false } },
+    scales: { x: { ...noGrid }, y: { ...noGrid } }
+  }
+});
+
+// ─── CHART 4: Outcome Bar (verified against Dashboard_Input_Template - matches exactly) ───
+new Chart(document.getElementById('outcomeBar'), {
+  type: 'bar',
+  data: {
+    labels: ['General AI\nin Healthcare Ed.','AI and\nExam Performance','Advocation\nfor AI'],
+    datasets: [
+      { label: 'Outcome Reported', data: [220,81,41], backgroundColor: '#059669' },
+      { label: 'No Outcome Reported', data: [108,34,23], backgroundColor: '#fee2e2' }
+    ]
+  },
+  options: {
+    indexAxis: 'y',
+    plugins: { legend: { position: 'bottom' } },
+    scales: { x: { stacked: true, ...noGrid }, y: { stacked: true, ...noGrid } }
+  }
+});
+
+// ─── TAB 2 CHARTS (rebuilt from real year x category crosstab, not proportional estimate) ───
+new Chart(document.getElementById('stackedTrend'), {
+  type: 'bar',
+  data: {
+    labels: years,
+    datasets: [
+      { label: 'General AI in Healthcare Ed.', data: generalY, backgroundColor: '#CC0000' },
+      { label: 'AI and Exam Performance',       data: examPerfY, backgroundColor: '#2563eb' },
+      { label: 'Advocation for AI',             data: advocY, backgroundColor: '#059669' }
+    ]
+  },
+  options: {
+    plugins: { legend: { position: 'bottom' } },
+    scales: { x: { stacked: true, ...noGrid }, y: { stacked: true, ...noGrid, title: { display: true, text: 'Papers' } } }
+  }
+});
+
+const growthRates = totalsByYear.map((v,i) => i===0||totalsByYear[i-1]===0 ? null : Math.round(((v-totalsByYear[i-1])/totalsByYear[i-1])*100));
+new Chart(document.getElementById('growthRate'), {
+  type: 'line',
+  data: {
+    labels: years,
+    datasets: [{ label: 'YoY Growth %', data: growthRates, borderColor: RED, backgroundColor: 'rgba(204,0,0,0.1)', fill: true, tension: 0.3, pointBackgroundColor: RED }]
+  },
+  options: {
+    plugins: { legend: { display: false } },
+    scales: { x: { ...noGrid }, y: { ...noGrid, title: { display: true, text: 'Growth (%)' } } }
+  }
+});
+
+const cumulative = totalsByYear.reduce((acc,v,i) => { acc.push((acc[i-1]||0)+v); return acc; }, []);
+new Chart(document.getElementById('cumulative'), {
+  type: 'line',
+  data: {
+    labels: years,
+    datasets: [{ label: 'Cumulative papers', data: cumulative, borderColor: '#2563eb', backgroundColor: 'rgba(37,99,235,0.1)', fill: true, tension: 0.3 }]
+  },
+  options: {
+    plugins: { legend: { display: false } },
+    scales: { x: { ...noGrid }, y: { ...noGrid, title: { display: true, text: 'Cumulative papers' } } }
+  }
+});
+
+// Journals - verified against Combined_Results_Data, matches exactly (no change needed)
+new Chart(document.getElementById('journalBar'), {
+  type: 'bar',
+  data: {
+    labels: ['BMC Med Ed','JMIR Med Ed','Cureus','Medical Teacher','Academic Medicine','Med Sci Educator','Frontiers Med','Am J Pharm Ed','Studies HT&I','PLoS ONE'],
+    datasets: [{ label: 'Papers', data: [50,43,42,21,13,12,10,8,8,7], backgroundColor: RED, borderRadius: 3 }]
+  },
+  options: { indexAxis: 'y', plugins: { legend: { display: false } }, scales: { x: { ...noGrid }, y: { ...noGrid } } }
+});
+
+new Chart(document.getElementById('prePostCategory'), {
+  type: 'bar',
+  data: {
+    labels: ['General AI\nin Healthcare Ed.','AI and\nExam Performance','Advocation\nfor AI'],
+    datasets: [
+      { label: 'Pre-Inflection (≤2022)', data: [29,21,8], backgroundColor: '#94a3b8' },
+      { label: 'Post-Inflection (2023+)', data: [299,94,56], backgroundColor: RED }
+    ]
+  },
+  options: { plugins: { legend: { position: 'bottom' } }, scales: { x: { ...noGrid }, y: { ...noGrid } } }
+});
+
+// ─── TAB 3 CHARTS (locked topic structure: 116/111/97/96/56/31) ───
+new Chart(document.getElementById('topicSize'), {
+  type: 'bar',
+  data: {
+    labels: ['Benchmarking &\nExam Perf.','Gen. AI Adoption\n& Perceptions','Imaging &\nSurgical Ed.','Simulation, VR &\nClinical Training','Perceptions,\nReadiness & KA','Pharmacy Ed. &\nIntegrity'],
+    datasets: [{ label: 'Papers', data: [116,111,97,96,56,31], backgroundColor: TOPIC_COLORS, borderRadius: 3 }]
+  },
+  options: { plugins: { legend: { display: false } }, scales: { x: { ...noGrid }, y: { ...noGrid } } }
+});
+
+new Chart(document.getElementById('topicPrePost'), {
+  type: 'bar',
+  data: {
+    labels: ['Benchmarking\n& Exam','Gen. AI Adoption\n& Perceptions','Imaging &\nSurgical Ed.','Simulation, VR\n& Clinical','Perceptions,\nReadiness & KA','Pharmacy &\nIntegrity'],
+    datasets: [
+      { label: 'Pre-Inflection (≤2022)', data: [4,1,23,13,15,2], backgroundColor: '#94a3b8' },
+      { label: 'Post-Inflection (2023+)', data: [112,110,74,83,41,29], backgroundColor: RED }
+    ]
+  },
+  options: { plugins: { legend: { position: 'bottom' } }, scales: { x: { stacked: false, ...noGrid }, y: { ...noGrid } } }
+});
+
+new Chart(document.getElementById('topicTimeline'), {
+  type: 'line',
+  data: {
+    labels: topicYears,
+    datasets: [
+      { label: 'Benchmarking & Exam Perf.',      data: topicYearData.Benchmarking, borderColor: TOPIC_COLORS[0], fill: false, tension: 0.3 },
+      { label: 'Gen. AI Adoption & Perceptions', data: topicYearData.GenAIAdopt,   borderColor: TOPIC_COLORS[1], fill: false, tension: 0.3 },
+      { label: 'Imaging & Surgical Education',   data: topicYearData.Imaging,      borderColor: TOPIC_COLORS[2], fill: false, tension: 0.3 },
+      { label: 'Simulation, VR & Clinical',      data: topicYearData.SimVR,        borderColor: TOPIC_COLORS[3], fill: false, tension: 0.3 },
+      { label: 'Perceptions, Readiness & KA',    data: topicYearData.Percep,       borderColor: TOPIC_COLORS[4], fill: false, tension: 0.3 },
+      { label: 'Pharmacy & Integrity',           data: topicYearData.Pharmacy,     borderColor: TOPIC_COLORS[5], fill: false, tension: 0.3 },
+    ]
+  },
+  options: {
+    plugins: { legend: { position: 'bottom' } },
+    scales: { x: { ...noGrid }, y: { ...noGrid, title: { display: true, text: 'Papers per year' } } }
+  }
+});
+
+// ─── TAB 4 CHARTS ───
+new Chart(document.getElementById('d1d2Chart'), {
+  type: 'bar',
+  data: {
+    labels: ['Benchmarking\n& Exam Perf.','Gen. AI Adoption\n& Perceptions','Imaging &\nSurgical Ed.','Simulation, VR\n& Clinical','Perceptions,\nReadiness & KA','Pharmacy &\nIntegrity'],
+    datasets: [
+      { label: 'D1 - Outcome Reported %', data: [94.0,64.9,50.5,50.0,82.1,58.1], backgroundColor: '#059669' },
+      { label: 'D2 - Rigorous Design %',  data: [7.8,13.5,29.9,15.6,3.6,16.1],   backgroundColor: '#CC0000' }
+    ]
+  },
+  options: {
+    plugins: { legend: { position: 'bottom' } },
+    scales: { x: { ...noGrid }, y: { ...noGrid, max: 100, title: { display: true, text: '%' } } }
+  }
+});
+
+new Chart(document.getElementById('evidenceStacked'), {
+  type: 'bar',
+  data: {
+    labels: ['Benchmarking','Gen. AI Adopt.','Imaging','Sim. & VR','Perceptions','Pharmacy'],
+    datasets: [
+      { label: 'Outcome Reported', data: [109,72,49,48,46,18], backgroundColor: '#059669' },
+      { label: 'No Outcome', data: [7,39,48,48,10,13], backgroundColor: '#fee2e2' }
+    ]
+  },
+  options: { plugins: { legend: { position: 'bottom' } }, scales: { x: { stacked: true, ...noGrid }, y: { stacked: true, ...noGrid } } }
+});
+
+new Chart(document.getElementById('evidenceDonut'), {
+  type: 'doughnut',
+  data: {
+    labels: ['Outcome Reported (342)','No Outcome Reported (165)'],
+    datasets: [{ data: [342,165], backgroundColor: ['#059669','#fee2e2'], borderWidth: 2, borderColor: '#fff' }]
+  },
+  options: { cutout: '60%', plugins: { legend: { position: 'bottom' } } }
+});
+
+// CORRECTED - the previous version of this chart (134/89/72/61/48/38/29/17/13/6) was not
+// the real Stage 5 output. Verified by direct re-run: Unclassified/Descriptive is the
+// dominant category (45.4%), and RCT is 6 strict / 12 broad, not 13.
+new Chart(document.getElementById('studyDesignChart'), {
+  type: 'bar',
+  data: {
+    labels: ['Unclassified/Descriptive','Cross-sectional Survey','Systematic Review/Meta-analysis','Commentary/Perspective/Editorial','Qualitative Study','Benchmarking/Perf. Evaluation','Cohort/Longitudinal','Simulation/Proof-of-Concept','Comparative/Experimental (non-RCT)','RCT (strict)','Case Study/Case Report'],
+    datasets: [{ label: 'Papers', data: [230,140,47,23,21,12,10,7,7,6,4], backgroundColor: RED, borderRadius: 3 }]
+  },
+  options: { indexAxis: 'y', plugins: { legend: { display: false } }, scales: { x: { ...noGrid }, y: { ...noGrid } } }
+});
+
+// Discipline - CORRECTED. Replaces a fabricated 8-category breakdown that omitted
+// the dominant "Cross-disciplinary/Not specified" finding (319/507, 62.9%) entirely.
+new Chart(document.getElementById('disciplineChart'), {
+  type: 'bar',
+  data: {
+    labels: ['Cross-disciplinary/\nNot specified','General Medicine','Pharmacy','Surgery','Clinical Skills/OSCE','Nursing','Dentistry','Radiology/Imaging','Psychiatry','Allied Health'],
+    datasets: [{ label: 'Papers', data: [319,52,40,23,23,18,18,10,2,2], backgroundColor: '#7c3aed', borderRadius: 3 }]
+  },
+  options: { indexAxis: 'y', plugins: { legend: { display: false } }, scales: { x: { ...noGrid }, y: { ...noGrid } } }
+});
+
+// ─── TAB 5 CHARTS (genericized - verified against Combined_Results_Data keyword tags) ───
+new Chart(document.getElementById('termSpecificity'), {
+  type: 'doughnut',
+  data: {
+    labels: ['Generic AI/ML terminology only (227)','Any generative-AI/LLM/chatbot-specific terminology (279)'],
+    datasets: [{ data: [227,279], backgroundColor: ['#2563eb', RED], borderWidth: 2, borderColor: '#fff' }]
+  },
+  options: { cutout: '55%', plugins: { legend: { position: 'bottom' } } }
+});
+
+new Chart(document.getElementById('namedVsGeneric'), {
+  type: 'doughnut',
+  data: {
+    labels: ['Names a specific commercial AI product (205)','Generic generative-AI/LLM/chatbot language only (74)'],
+    datasets: [{ data: [205,74], backgroundColor: [RED,'#d97706'], borderWidth: 2, borderColor: '#fff' }]
+  },
+  options: { cutout: '55%', plugins: { legend: { position: 'bottom' } } }
+});
+
+new Chart(document.getElementById('journalBarDetail'), {
+  type: 'bar',
+  data: {
+    labels: ['BMC Med Ed','JMIR Med Ed','Cureus','Medical Teacher','Academic Medicine','Med Sci Educator','Frontiers Medicine','Am J Pharm Ed','Studies HT&I','PLoS ONE'],
+    datasets: [{ label: 'Papers', data: [50,43,42,21,13,12,10,8,8,7], backgroundColor: TOPIC_COLORS[0], borderRadius: 3 }]
+  },
+  options: { plugins: { legend: { display: false } }, scales: { x: { ...noGrid }, y: { ...noGrid } } }
+});
+
+// Vocab shift - REAL pre/post counts from Matched AI Keywords + Date, not estimated
+new Chart(document.getElementById('vocabShift'), {
+  type: 'bar',
+  data: {
+    labels: ['Artificial Intelligence (generic)','LLM/Large Language Model terminology','Specific commercial chatbot product named','Machine Learning','Generative AI (generic term)','AI Chatbot (generic, unbranded)'],
+    datasets: [
+      { label: 'Pre-Inflection (≤2022)', data: [50,0,0,15,0,0], backgroundColor: '#94a3b8' },
+      { label: 'Post-Inflection (2023+)', data: [328,117,199,19,40,13], backgroundColor: RED }
+    ]
+  },
+  options: {
+    indexAxis: 'y',
+    plugins: { legend: { position: 'bottom' } },
+    scales: { x: { ...noGrid, title: { display: true, text: 'Papers (real count)' } }, y: { ...noGrid } }
+  }
+});
+
+// ─── TAB 6: MATRIX SCATTER (locked topics, D1 as y-axis) ───
+new Chart(document.getElementById('matrixChart'), {
+  type: 'bubble',
+  data: {
+    datasets: [
+      { label: 'Benchmarking & Exam Perf.',      data: [{x:116, y:94.0, r:16.6}], backgroundColor: 'rgba(5,150,105,0.65)', borderColor: '#059669' },
+      { label: 'Gen. AI Adoption & Perceptions',  data: [{x:111, y:64.9, r:15.9}], backgroundColor: 'rgba(37,99,235,0.65)', borderColor: '#2563eb' },
+      { label: 'Imaging & Surgical Education',    data: [{x:97,  y:50.5, r:13.9}], backgroundColor: 'rgba(220,38,38,0.65)', borderColor: '#dc2626' },
+      { label: 'Simulation, VR & Clinical',       data: [{x:96,  y:50.0, r:13.7}], backgroundColor: 'rgba(124,58,237,0.65)', borderColor: '#7c3aed' },
+      { label: 'Perceptions, Readiness & KA',     data: [{x:56,  y:82.1, r:8.0}],  backgroundColor: 'rgba(8,145,178,0.65)', borderColor: '#0891b2' },
+      { label: 'Pharmacy Education & Integrity',  data: [{x:31,  y:58.1, r:4.4}],  backgroundColor: 'rgba(217,119,6,0.65)', borderColor: '#d97706' },
+    ]
+  },
+  options: {
+    plugins: {
+      legend: { position: 'bottom' },
+      tooltip: { callbacks: { label: ctx => `${ctx.dataset.label}: ${ctx.raw.x} papers, ${ctx.raw.y}% outcome rate (D1)` } }
+    },
+    scales: {
+      x: { ...noGrid, title: { display: true, text: 'Number of Papers (Volume)' }, min: 0, max: 130 },
+      y: { ...noGrid, title: { display: true, text: 'Outcome Reporting Rate - D1 (%)' }, min: 0, max: 100 }
+    }
+  }
+});
+</script>
+</body>
+</html>

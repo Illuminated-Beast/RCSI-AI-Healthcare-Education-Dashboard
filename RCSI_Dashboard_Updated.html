@@ -451,7 +451,7 @@
         <td>110</td>
         <td><span class="badge high" style="background:#dcfce7;color:#14532d">110×</span></td>
         <td>64.9%</td>
-        <td>llms, chatbots, chat, chatgpts</td>
+        <td>llms, chatbots, questionnaire, tutor</td>
       </tr>
       <tr>
         <td>3</td>
@@ -567,11 +567,11 @@
 <div id="tab-gaps" class="panel">
   <div class="section-title">Gap Identification - Study Design &amp; Discipline Coverage (Stage 5)</div>
 
-  <div class="note-banner"><strong>Verification:</strong> Counts from Stage 5 regex classifier on master_corpus.xlsx. RCT count presented as range 6 (strict PICO) to 13 (broad criteria).</div>
+  <div class="note-banner"><strong>Verification:</strong> Counts from Stage 5 regex classifier on master_corpus.xlsx. RCT count resolved to range 6 (strict PICO) to 12 (broad criteria) — 13 was a stale early-run figure in earlier extraction code and should not be used.</div>
 
   <div class="kpi-row">
-    <div class="kpi" style="--accent:var(--red)"><div class="num">2.6%</div><div class="label">RCT share of corpus</div><div class="sub">6–13 papers (strict–broad)</div></div>
-    <div class="kpi" style="--accent:var(--red)"><div class="num">26.4%</div><div class="label">Survey dominance</div><div class="sub">134 of 507 papers</div></div>
+    <div class="kpi" style="--accent:var(--red)"><div class="num">2.4%</div><div class="label">RCT share of corpus</div><div class="sub">6–12 papers (strict–broad)</div></div>
+    <div class="kpi" style="--accent:var(--red)"><div class="num">45.4%</div><div class="label">Unclassified/Descriptive design</div><div class="sub">230 of 507 papers — largest single category</div></div>
     <div class="kpi" style="--accent:var(--red)"><div class="num">2</div><div class="label">Allied Health papers</div><div class="sub">0 pre-2023 - emerging field</div></div>
     <div class="kpi" style="--accent:var(--red)"><div class="num">18</div><div class="label">Nursing papers</div><div class="sub">0 pre-2023 - emerging field</div></div>
   </div>
@@ -579,7 +579,7 @@
   <div class="chart-grid">
     <div class="chart-box">
       <h3>Study Design Distribution (n = 507)</h3>
-      <div class="chart-sub">RCT + Review/Meta-Analysis combined: 42 papers (8.3%). Red = rigorous designs.</div>
+      <div class="chart-sub">RCT + Systematic Review/Meta-analysis combined: 53 papers (10.5%). Red = rigorous designs; Unclassified/Descriptive is the largest single category at 45.4%.</div>
       <canvas id="studyDesignChart" style="max-height:340px"></canvas>
     </div>
     <div class="chart-box">
@@ -598,19 +598,19 @@
   </div>
 </div>
 <div id="tab-keywords" class="panel">
-  <div class="section-title">AI Tool Vocabulary - Keyword Analysis</div>
-  <div class="note-banner" style="margin-top:10px;"><strong>Reference data:</strong> this tab shows verified figures from the locked 507-paper corpus and is not recomputed when you upload a new dataset above.</div>
-  
+  <div class="section-title">AI Terminology in the Corpus</div>
+  <div class="note-banner" style="margin-top:10px;"><strong>Reference data:</strong> this tab shows verified figures from the locked 507-paper corpus and is not recomputed when you upload a new dataset above. Labels are kept generic per supervisor instruction - no specific AI tool is named anywhere in this dissertation.</div>
+
   <div class="chart-grid">
     <div class="chart-box">
-      <h3>AI Keyword Distribution</h3>
-      <div class="chart-sub">From Matched AI Keywords field (506 combined papers)</div>
-      <canvas id="keywordBar"></canvas>
+      <h3>Terminology Specificity</h3>
+      <div class="chart-sub">Generic AI/ML language vs any generative-AI/LLM/chatbot-specific terminology (506 combined-results papers with a keyword tag)</div>
+      <canvas id="termSpecificity"></canvas>
     </div>
     <div class="chart-box">
-      <h3>LLM-Specific vs Traditional AI Framing</h3>
-      <div class="chart-sub">Papers using large-language-model-specific terms vs generic AI-only framing</div>
-      <canvas id="llmVsAI"></canvas>
+      <h3>Within Specific Terminology: Named Product vs Generic Language</h3>
+      <div class="chart-sub">Of the 279 papers using generative-AI/LLM/chatbot-specific terms</div>
+      <canvas id="namedVsGeneric"></canvas>
     </div>
   </div>
 
@@ -621,8 +621,8 @@
       <canvas id="journalBarDetail"></canvas>
     </div>
     <div class="chart-box">
-      <h3>Keyword Vocabulary Shift - Pre vs Post 2023</h3>
-      <div class="chart-sub">Estimated distribution of AI terminology used in papers</div>
+      <h3>Terminology Shift - Pre vs Post Inflection Point</h3>
+      <div class="chart-sub">Real counts from Matched AI Keywords field, by publication date (not estimated)</div>
       <canvas id="vocabShift"></canvas>
     </div>
   </div>
@@ -1287,13 +1287,13 @@ new Chart(document.getElementById('disciplineChart'), {
 (function buildGapCards() {
   const GAPS = [
     { rank:1, title:"RCT / high-quality designs near-absent",
-      detail:"6 papers strictly classified as RCT (1.2%); a broader RCT-related vocabulary search (randomisation, controlled trial, random allocation) matches 13 papers (2.6%) whose text uses RCT-adjacent language without meeting the strict classification pattern. Outcome claims across all topics lack experimental grounding." },
+      detail:"6 papers strictly classified as RCT (1.2%); a broader RCT-related vocabulary search (randomisation, controlled trial, random allocation) matches 12 papers (2.4%) whose text uses RCT-adjacent language without meeting the strict classification pattern. Outcome claims across all topics lack experimental grounding." },
     { rank:2, title:"Nursing, Allied Health &amp; Psychiatry structurally under-represented",
       detail:"Nursing: 18 papers, Allied Health: 2, Psychiatry/Mental Health: 2. Nursing and Allied Health show zero pre-2023 presence &mdash; emerging fields, not declining ones." },
     { rank:3, title:"Simulation and Imaging: joint-lowest outcome reporting (50%)",
       detail:"96 + 97 papers combined, yet half report no measurable outcome. Largest volume-to-evidence gap." },
-    { rank:4, title:"Survey dominance limits causal inference",
-      detail:"134 surveys (26.4%) cannot establish learning efficacy. Cross-sectional design dominates Perceptions topics." },
+    { rank:4, title:"Nearly half the corpus doesn't state its own methodology",
+      detail:"230 papers (45.4%) fall into Unclassified/Descriptive - no design terminology detected in title/abstract. This is a transparency-of-reporting gap, not just classifier noise. Cross-sectional surveys, the largest classifiable design, add a further 140 papers (27.6%) that cannot establish causal or learning efficacy." },
     { rank:5, title:"Imaging topic has strong designs but poor outcome closure",
       detail:"D2=29.9% HIGH (best in corpus) but D1=50.5% LOW. Rigorous methodology not completing the evidence loop." }
   ];
@@ -1306,30 +1306,23 @@ new Chart(document.getElementById('disciplineChart'), {
   });
 })();
 
-// ─── TAB 5 CHARTS ─────────────────────────────────────────────────────────────
-new Chart(document.getElementById('keywordBar'), {
-  type: 'bar',
-  data: {
-    labels: ['AI only','LLM + AI','LLM only','LLM variants','Gen. AI + AI','Machine Learning','LLM + AI (multi)','LLM + AI (dual)','AI + ML'],
-    datasets: [{ label: 'Papers', data: [175,65,46,35,28,13,23,6,13], backgroundColor: RED, borderRadius: 3 }]
-  },
-  options: {
-    indexAxis: 'y',
-    plugins: { legend: { display: false } },
-    scales: { x: { ...noGrid }, y: { ...noGrid } }
-  }
-});
-
-new Chart(document.getElementById('llmVsAI'), {
+// ─── TAB 5 CHARTS (genericized, verified against Combined_Results_Data keyword tags, n=506) ──
+new Chart(document.getElementById('termSpecificity'), {
   type: 'doughnut',
   data: {
-    labels: ['LLM-specific terms mentioned','AI-only framing','Machine Learning','Generative AI'],
-    datasets: [{ data: [199,175,26,46], backgroundColor: [RED,'#2563eb','#d97706','#7c3aed'], borderWidth: 2, borderColor: '#fff' }]
+    labels: ['Generic AI/ML terminology only (227)','Any generative-AI/LLM/chatbot-specific terminology (279)'],
+    datasets: [{ data: [227,279], backgroundColor: ['#2563eb', RED], borderWidth: 2, borderColor: '#fff' }]
   },
-  options: {
-    cutout: '55%',
-    plugins: { legend: { position: 'bottom' } }
-  }
+  options: { cutout: '55%', plugins: { legend: { position: 'bottom' } } }
+});
+
+new Chart(document.getElementById('namedVsGeneric'), {
+  type: 'doughnut',
+  data: {
+    labels: ['Names a specific commercial AI product (205)','Generic generative-AI/LLM/chatbot language only (74)'],
+    datasets: [{ data: [205,74], backgroundColor: [RED,'#d97706'], borderWidth: 2, borderColor: '#fff' }]
+  },
+  options: { cutout: '55%', plugins: { legend: { position: 'bottom' } } }
 });
 
 new Chart(document.getElementById('journalBarDetail'), {
@@ -1344,21 +1337,22 @@ new Chart(document.getElementById('journalBarDetail'), {
   }
 });
 
-// Vocab shift pre/post
+// Vocab shift pre/post - REAL counts from Matched AI Keywords + Date, not estimated
 new Chart(document.getElementById('vocabShift'), {
   type: 'bar',
   data: {
-    labels: ['Artificial Intelligence','Large Language Model (specific)','LLM/Large Language Model','Machine Learning','Generative AI','AI Chatbot'],
+    labels: ['Artificial Intelligence (generic)','LLM/Large Language Model terminology','Specific commercial chatbot product named','Machine Learning','Generative AI (generic term)','AI Chatbot (generic, unbranded)'],
     datasets: [
-      { label: 'Pre-2023 (est.)', data: [40,0,0,8,0,0], backgroundColor: '#94a3b8' },
-      { label: 'Post-2023 (est.)', data: [135,177,91,18,49,12], backgroundColor: RED }
+      { label: 'Pre-Inflection (≤2022)', data: [50,0,0,15,0,0], backgroundColor: '#94a3b8' },
+      { label: 'Post-Inflection (2023+)', data: [328,117,199,19,40,13], backgroundColor: RED }
     ]
   },
   options: {
+    indexAxis: 'y',
     plugins: { legend: { position: 'bottom' } },
     scales: {
-      x: { stacked: false, ...noGrid },
-      y: { ...noGrid, title: { display: true, text: 'Papers (approx.)' } }
+      x: { ...noGrid, title: { display: true, text: 'Papers (real count)' } },
+      y: { ...noGrid }
     }
   }
 });
